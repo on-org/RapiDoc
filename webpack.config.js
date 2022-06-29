@@ -34,6 +34,7 @@ const rapidocBanner = `
 *`;
 
 const commonPlugins = [
+  new webpack.ProvidePlugin({ process: 'process/browser' }),
   new webpack.ProvidePlugin({ Buffer: ['buffer', 'Buffer'] }),
   new webpack.HotModuleReplacementPlugin(),
   new ESLintPlugin({ extensions: ['js'] }),
@@ -130,7 +131,11 @@ module.exports = {
   resolve: {
     fallback: {
       fs: false,
+      // util: false,
+      process: false,
       buffer: require.resolve('buffer'),
+      stream: require.resolve('stream-browserify'),
+      util: require.resolve('util/'),
     },
     alias: {
       '~': path.resolve(__dirname, 'src'),
