@@ -159,6 +159,7 @@ export default class CodeSimples extends LitElement {
     this.client = 'xmlhttprequest';
     this.showPopup = false;
     this.onPopupIndex = null;
+    this.vals = [];
   }
 
   static get properties() {
@@ -270,6 +271,14 @@ export default class CodeSimples extends LitElement {
   }
 
   render() {
+    this.parentElement.querySelectorAll('input').forEach((input) => {
+      if (!input) return;
+      input.onkeyup = () => {
+        this.vals[input.dataset.pname] = input.value;
+        this.requestUpdate();
+      };
+    });
+
     return html`<div class="col regular-font request-panel">
       <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
       <div class="code-panel">
@@ -285,7 +294,8 @@ export default class CodeSimples extends LitElement {
     </div>`;
   }
 
-  randomParam(type) {
+  randomParam(type, name) {
+    if (this.vals[name]) return this.vals[name];
     if (type === 'string') {
       return 'str';
     }
@@ -302,35 +312,57 @@ export default class CodeSimples extends LitElement {
     const headers = [];
     const queryString = [];
     const postData = [];
+    const cookies = [];
+    const method = this.method.toUpperCase();
     let url = this.serverUrl + this.path;
     for (const i in this.parameters) {
+      const { name } = this.parameters[i];
+      const { type } = this.parameters[i].schema;
+      if (this.parameters[i].in === 'cookie') {
+        cookies.push({ name, value: this.randomParam(type, name) });
+      }
       if (this.parameters[i].in === 'header') {
-        headers.push({ name: this.parameters[i].name, value: this.randomParam(this.parameters[i].schema.type) });
+        headers.push({ name, value: this.randomParam(type, name) });
       }
       if (this.parameters[i].in === 'query' && this.parameters[i].required) {
-        queryString.push({ name: this.parameters[i].name, value: this.randomParam(this.parameters[i].schema.type) });
+        queryString.push({ name, value: this.randomParam(type, name) });
       }
       if (this.parameters[i].in === 'path' && this.parameters[i].required) {
-        url = url.replaceAll(`{${this.parameters[i].name}}`, this.randomParam(this.parameters[i].schema.type));
+        url = url.replaceAll(`{${name}}`, this.randomParam(type, name));
       }
       if (this.parameters[i].in === 'body' && this.parameters[i].required) {
-        postData.push({ name: this.parameters[i].name, value: this.randomParam(this.parameters[i].schema.type) });
+        postData.push({ name, value: this.randomParam(type, name) });
       }
     }
 
-    const method = this.method.toUpperCase();
+    if (this.request_body && Object.keys(this.request_body).length > 0) {
+      const { content } = this.request_body;
+      for (const mimeType in content) {
+        this.mimeType = mimeType;
+        if (content[mimeType].schema.properties) {
+          for (const fieldName in content[mimeType].schema.properties) {
+            if (!this.vals[fieldName]) continue;
+            if (method === 'POST' || method === 'PUT') {
+              postData.push({ name: fieldName, value: this.vals[fieldName] });
+            } else {
+              url = url.replaceAll(`{${fieldName}}`, this.vals[fieldName]);
+            }
+          }
+        }
+      }
+    }
+
     const param = {
       method,
       url,
       headers,
       queryString,
+      cookies,
     };
     if (method === 'POST' && postData.length > 0) {
       param.postData = { mimeType: this.mimeType, params: JSON.parse(JSON.stringify(postData)) };
     }
 
-    // eslint-disable-next-line no-console
-    console.log(param, this.lang, this.client, this.parameters);
     const snippet = new HTTPSnippet(param);
     const code = snippet.convert(this.lang, this.client) || '';
     // const code = 'snippet.convert(this.lang, this.client) || null';

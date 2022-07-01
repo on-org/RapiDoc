@@ -5,7 +5,6 @@ import { rapidocApiKey } from '~/utils/common-utils';
 import { pathSecurityTemplate } from '~/templates/security-scheme-template';
 import callbackTemplate from '~/templates/callback-template';
 import '~/components/api-request';
-import '~/components/code-simples';
 import '~/components/api-response';
 
 /* eslint-disable indent */
@@ -64,17 +63,6 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
       }
       ${path.description ? html`<div class="m-markdown"> ${unsafeHTML(marked(path.description))}</div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
-      <code-simples
-          class = "${this.renderStyle}-mode-new"
-          method = "${path.method}"
-          path = "${path.path}"
-          .security = "${path.security}"
-          .parameters = "${path.parameters}"
-          .request_body = "${path.requestBody}"
-          .api_keys = "${nonEmptyApiKeys}"
-          .servers = "${path.servers}"
-          server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
-        ></code-simples>
       
       <div class='expanded-req-resp-container'>
         <api-request

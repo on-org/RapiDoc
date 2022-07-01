@@ -25,6 +25,7 @@ import { schemaInObjectNotation,
 import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/tag-input';
+import '~/components/code-simples';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -197,7 +198,7 @@ export default class ApiRequest extends LitElement {
 
   render() {
     return html`
-    <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+    <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
@@ -209,6 +210,18 @@ export default class ApiRequest extends LitElement {
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : html`${this.apiCallTemplate()}`}
       </div>  
+      
+      <code-simples
+          class = "mode-new"
+          method = "${this.method}"
+          path = "${this.path}"
+          .security = "${this.security}"
+          .parameters = "${this.parameters}"
+          .request_body = "${this.request_body}"
+          .api_keys = "${this.api_keys}"
+          .servers = "${this.servers}"
+          server-url = "${this.serverUrl}"
+        ></code-simples>
     </div>
     `;
   }
