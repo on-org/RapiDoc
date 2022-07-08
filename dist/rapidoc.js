@@ -1,7 +1,7 @@
 
 /**
 * @preserve
-* RapiDoc 9.3.2 - WebComponent to View OpenAPI docs
+* RapiDoc 9.3.3 - WebComponent to View OpenAPI docs
 * License: MIT
 * Repo   : https://github.com/rapi-doc/RapiDoc
 * Author : Mrinmoy Majumdar
@@ -33172,12 +33172,14 @@ async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = fals
     const securitySchemeSet = new Set();
     Object.entries(jsonParsedSpec.components.securitySchemes).forEach(kv => {
       if (!securitySchemeSet.has(kv[0])) {
+        var _window$apikey;
+
         securitySchemeSet.add(kv[0]);
         const securityObj = {
           securitySchemeId: kv[0],
           ...kv[1]
         };
-        securityObj.value = '';
+        securityObj.value = securityObj.securitySchemeId === 'api_key' || securityObj.securitySchemeId === 'apikey' ? (_window$apikey = window.apikey) !== null && _window$apikey !== void 0 ? _window$apikey : '' : '';
         securityObj.finalKeyValue = '';
 
         if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
@@ -33976,6 +33978,11 @@ function securitySchemeTemplate() {
     return;
   }
 
+  this.resolvedSpec.securitySchemes.map(v => {
+    if (v.value !== '') {
+      onApiKeyChange.call(this, v.securitySchemeId, v.value);
+    }
+  });
   return $`
   <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
@@ -34180,6 +34187,7 @@ function callbackTemplate(callbacks) {
                       path = "${pathObj[0] || ''}" 
                       .parameters = "${((_method$ = method[1]) === null || _method$ === void 0 ? void 0 : _method$.parameters) || ''}" 
                       .request_body = "${((_method$2 = method[1]) === null || _method$2 === void 0 ? void 0 : _method$2.requestBody) || ''}"
+                      resolved_spec="${this.resolvedSpec}"
                       fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
                       allow-try = "false"
                       render-style="${this.renderStyle}" 
@@ -35121,6 +35129,11 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'object';
+
+    if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
+      obj['::dataTypeLabel'] = 'object or null';
+    }
+
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
 
@@ -35142,6 +35155,11 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     obj['::title'] = schema.title || '';
     obj['::description'] = generateMarkdownForArrayAndObjectDescription(schema, level);
     obj['::type'] = 'array';
+
+    if (Array.isArray(schema.type) && schema.type.includes('null') || schema.nullable) {
+      obj['::dataTypeLabel'] = 'array or null';
+    }
+
     obj['::deprecated'] = schema.deprecated || false;
     obj['::readwrite'] = schema.readOnly ? 'readonly' : schema.writeOnly ? 'writeonly' : '';
 
@@ -35738,7 +35756,7 @@ class SchemaTree extends lit_element_s {
 
 
   render() {
-    var _this$data, _this$data2, _this$data3;
+    var _this$data, _this$data2, _this$data3, _this$data4, _this$data5, _this$data6;
 
     return $`
       <div class="tree ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
@@ -35755,12 +35773,12 @@ class SchemaTree extends lit_element_s {
         </div>
         ${(_this$data3 = this.data) !== null && _this$data3 !== void 0 && _this$data3['::description'] ? $`<span part="schema-description" class='m-markdown'> ${unsafe_html_o(marked(this.data['::description'] || ''))}</span>` : ''}
         ${this.data ? $`
-            ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '')}` : $`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
+            ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'] || '', ((_this$data4 = this.data) === null || _this$data4 === void 0 ? void 0 : _this$data4['::array-type']) || '', '', ((_this$data5 = this.data) === null || _this$data5 === void 0 ? void 0 : _this$data5['::description']) || '', 0, 0, this.data['::readwrite'] ? this.data['::readwrite'] : '', ((_this$data6 = this.data) === null || _this$data6 === void 0 ? void 0 : _this$data6['::deprecated']) === 'deprecated')}` : $`<span class='mono-font' style='color:var(--red)'> Schema not found </span>`}
       </div>  
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '', isDeprecated = false) {
     var _data$Type;
 
     if (this.schemaHideReadOnly === 'true') {
@@ -35864,10 +35882,10 @@ class SchemaTree extends lit_element_s {
       var _data$Type2;
 
       return $`
-        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}" title="${data['::deprecated'] ? 'Deprecated' : ''}">
-          <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
+        <div class="tr ${schemaLevel < this.schemaExpandLevel || (_data$Type2 = data['::type']) !== null && _data$Type2 !== void 0 && _data$Type2.startsWith('xxx-of') ? 'expanded' : 'collapsed'} ${data['::type'] || 'no-type-info'}" title="${isDeprecated ? 'Deprecated' : ''}">
+          <div class="td key ${isDeprecated ? 'deprecated' : ''}" style='min-width:${minFieldColWidth}px'>
             ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'> ${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : keyLabel === '::props' || keyLabel === '::ARRAY~OF' ? '' : schemaLevel > 0 ? $`<span class="key-label" title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWrite === 'writeonly' ? 'Write-Only' : ''}">
-                      ${data['::deprecated'] ? '✗' : ''}
+                      ${isDeprecated ? '✗' : ''}
                       ${keyLabel.replace(/\*$/, '')}${keyLabel.endsWith('*') ? $`<span style="color:var(--red)">*</span>` : ''}${readOrWrite === 'readonly' ? $` 🆁` : readOrWrite === 'writeonly' ? $` 🆆` : readOrWrite}:
                     </span>` : ''}
             ${data['::type'] === 'xxx-of' && dataType === 'array' ? $`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
@@ -35876,9 +35894,9 @@ class SchemaTree extends lit_element_s {
           <div class='td key-descr m-markdown-small'>${unsafe_html_o(marked(description || ''))}</div>
         </div>
         <div class='inside-bracket ${data['::type'] || 'no-type-info'}' style='padding-left:${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' ? 0 : leftPadding}px;'>
-          ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'])}` : $`
+          ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, data[0]['::readwrite'], data['::deprecated'] || false)}` : $`
               ${Object.keys(data).map(dataKey => $`
-                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+                ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '', data[dataKey]['::deprecated'] || false)}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '', data[dataKey]['::deprecated'] || false)}`}
               `)}
             `}
         </div>
@@ -35918,9 +35936,9 @@ class SchemaTree extends lit_element_s {
     }
 
     return $`
-      <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
-        <div class="td key ${deprecated}" style='min-width:${minFieldColWidth}px'>
-          ${deprecated ? $`<span style='color:var(--red);'>✗</span>` : ''}
+      <div class = "tr primitive" title="${isDeprecated || deprecated === 'deprecated' ? 'Deprecated' : ''}">
+        <div class="td key ${isDeprecated || deprecated === 'deprecated' ? 'deprecated' : ''} ${deprecated}" style='min-width:${minFieldColWidth}px'>
+          ${isDeprecated || deprecated === 'deprecated' ? $`<span style='color:var(--red);'>✗</span>` : ''}
           ${keyLabel.endsWith('*') ? $`<span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>:` : key.startsWith('::OPTION') ? $`<span class='key-label xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`<span class="key-label">${keyLabel}:</span>`}
           <span class="${dataTypeCss}" title="${finalReadWriteTip}"> 
             ${dataType === 'array' ? `[${type}]` : `${type}`}
@@ -36101,6 +36119,548 @@ class TagInput extends lit_element_s {
 } // Register the element with the browser
 
 customElements.define('tag-input', TagInput);
+// EXTERNAL MODULE: ./node_modules/reprism/es/index.js
+var es = __webpack_require__(212);
+// EXTERNAL MODULE: ./node_modules/httpsnippet/src/index.js
+var httpsnippet_src = __webpack_require__(9042);
+var src_default = /*#__PURE__*/__webpack_require__.n(httpsnippet_src);
+// EXTERNAL MODULE: ./node_modules/prismjs/themes/prism-okaidia.css
+var prism_okaidia = __webpack_require__(2006);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/jsx.js
+var jsx = __webpack_require__(3579);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/java.js
+var java = __webpack_require__(5951);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/javascript.js
+var javascript = __webpack_require__(6468);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/clojure.js
+var clojure = __webpack_require__(681);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/csharp.js
+var csharp = __webpack_require__(7474);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/http.js
+var languages_http = __webpack_require__(5526);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/kotlin.js
+var kotlin = __webpack_require__(5696);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/powershell.js
+var powershell = __webpack_require__(1693);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/r.js
+var languages_r = __webpack_require__(2582);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/ruby.js
+var ruby = __webpack_require__(1351);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/swift.js
+var swift = __webpack_require__(6462);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/bash.js
+var bash = __webpack_require__(9438);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/ocaml.js
+var ocaml = __webpack_require__(2904);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/python.js
+var python = __webpack_require__(6557);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/json.js
+var languages_json = __webpack_require__(601);
+// EXTERNAL MODULE: ./node_modules/reprism/languages/textile.js
+var textile = __webpack_require__(4171);
+// EXTERNAL MODULE: ./src/components/reprism-php.js
+var reprism_php = __webpack_require__(9431);
+;// CONCATENATED MODULE: ./src/components/code-simples.js
+
+
+
+
+
+
+
+
+
+
+ // eslint-disable-line import/extensions
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+(0,es/* loadLanguages */.Nl)(jsx/* default */.Z, java/* default */.Z, bash/* default */.Z, javascript/* default */.Z, clojure/* default */.Z, csharp/* default */.Z, languages_http/* default */.Z, kotlin/* default */.Z, reprism_php/* default */.Z, powershell/* default */.Z, languages_r/* default */.Z, ruby/* default */.Z, swift/* default */.Z, ocaml/* default */.Z, python/* default */.Z, languages_json/* default */.Z, textile/* default */.Z);
+const code_simples_localStorageKey = 'rapidoc';
+
+if (typeof document !== 'undefined') {
+  // Provide window.Prism for plugins
+  window.Prism = es/* default */.ZP; // eslint-disable-next-line global-require
+
+  __webpack_require__(781);
+
+  es/* default.plugins.NormalizeWhitespace.setDefaults */.ZP.plugins.NormalizeWhitespace.setDefaults({
+    'remove-trailing': true,
+    'remove-indent': true,
+    'left-trim': true,
+    'right-trim': true,
+    'break-lines': 60,
+    'tabs-to-spaces': 4
+  });
+  es/* default.hooks.add */.ZP.hooks.add('before-sanity-check', env => {
+    env.element.innerHTML = env.element.innerHTML.replace(/<br>/g, '\n');
+    env.code = env.element.textContent;
+  });
+}
+
+const requestSampleConfigs = [{
+  snippet: 'shell',
+  libraries: {
+    cURL: 'curl',
+    HTTPie: 'httpie',
+    Wget: 'wget'
+  }
+}, {
+  snippet: 'javascript',
+  libraries: {
+    Fetch: 'fetch',
+    XMLHttpRequest: 'xmlhttprequest',
+    jQuery: 'jquery',
+    Axios: 'axios'
+  }
+}, // {
+//   snippet: 'node',
+//   libraries: {
+//     Native: 'native',
+//     Request: 'request',
+//     Unirest: 'unirest',
+//     Fetch: 'fetch',
+//     Axios: 'axios',
+//   },
+// },
+{
+  snippet: 'python',
+  libraries: {
+    'Python 3': 'python3',
+    Requests: 'requests'
+  }
+}, {
+  snippet: 'go'
+}, {
+  snippet: 'c'
+}, // 'Objective-C': {
+//     snippet: 'objectivec',
+// },
+{
+  snippet: 'ocaml'
+}, {
+  snippet: 'csharp',
+  libraries: {
+    HttpClient: 'httpclient',
+    RestSharp: 'restsharp'
+  }
+}, {
+  snippet: 'java',
+  libraries: {
+    AsyncHttp: 'asynchttp',
+    NetHttp: 'nethttp',
+    OkHttp: 'okhttp',
+    Unirest: 'unirest'
+  }
+}, {
+  snippet: 'http'
+}, {
+  snippet: 'clojure'
+}, {
+  snippet: 'kotlin'
+}, {
+  snippet: 'php',
+  libraries: {
+    'pecl/http 1': 'http1',
+    'pecl/http 2': 'http2',
+    cURL: 'curl'
+  }
+}, {
+  snippet: 'powershell',
+  libraries: {
+    WebRequest: 'webrequest',
+    RestMethod: 'restmethod'
+  }
+}, {
+  snippet: 'r'
+}, {
+  snippet: 'ruby'
+}, {
+  snippet: 'swift'
+}];
+class CodeSimples extends lit_element_s {
+  constructor() {
+    super();
+    this.url = '';
+    this.lang = 'javascript';
+    this.client = 'xmlhttprequest';
+    this.showPopup = false;
+    this.onPopupIndex = null;
+    this.vals = [];
+  }
+
+  static get properties() {
+    return {
+      serverUrl: {
+        type: String,
+        attribute: 'server-url'
+      },
+      servers: {
+        type: Array
+      },
+      method: {
+        type: String
+      },
+      path: {
+        type: String
+      },
+      security: {
+        type: Array
+      },
+      parameters: {
+        type: Array
+      },
+      request_body: {
+        type: Object
+      },
+      api_keys: {
+        type: Array
+      },
+      parser: {
+        type: Object
+      },
+      resolved_spec: {
+        type: Object
+      },
+      accept: {
+        type: String
+      }
+    };
+  }
+
+  static get styles() {
+    return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, r`
+        .selector {
+          cursor: pointer;
+        }
+        .code-panel {
+          border-radius: 5px;
+          min-height: 500px;
+          outline: 2px solid rgba(0,0,0,0);
+          outline-offset: 2px;
+          overflow: hidden;
+          width: 100%;
+        }
+        
+        .code-panel-header {
+          align-items: center;
+          display: flex;
+          background-color: #e0e6f0;
+          border-color: #e0e6f0;
+          color: #66676b;
+          font-size: 12px;
+          line-height: 1;
+          padding-left: 16px;
+          padding-right: 12px;
+          position: relative;
+          user-select: none;
+          height: 30px;
+        }
+        
+        .code-panel-body {
+          background-color: #f2f5fb;
+          padding: 0;
+          position: relative;
+        }
+        
+        .code-popup {
+          background-color: #fff;
+          border: 1px solid #ccd0d1;
+          border-radius: 2px;
+          box-sizing: border-box;
+          left: 19px;
+          padding-bottom: 8px;
+          padding-top: 8px;
+          position: absolute;
+          top: 27px;
+          width: 273px;
+          z-index: 100000;
+        }
+        
+        .code-popup-item {
+          align-items: center;
+          display: flex;
+          font-size: 12px;
+          padding: 4px 12px 4px 4px;
+          white-space: nowrap;
+        }
+        
+        .code-popup-item-icon {
+          right: 10px;
+          position: absolute;
+        }
+        .code-popup-sublist {
+          background-color: #fff;
+          border: 1px solid #ccd0d1;
+          border-radius: 2px;
+          left: 271px;
+          position: absolute;
+          z-index: 10;
+        }
+        .toolbar-btn {
+          cursor: pointer;
+          padding: 4px;
+          margin: 0px 2px;
+          font-size: var(--font-size-small);
+          min-width: 50px;
+          color: var(--primary-color-invert);
+          border-radius: 2px;
+          border: none;
+          background-color: var(--primary-color);
+        }
+      `, custom_styles];
+  }
+
+  render() {
+    this.parentElement.querySelectorAll('input').forEach(input => {
+      if (!input) return;
+
+      input.onkeyup = () => {
+        this.vals[input.dataset.pname] = input.value;
+        this.requestUpdate();
+      };
+    });
+    return $`<div class="col regular-font request-panel">
+      <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
+      <div class="code-panel">
+        <div class="code-panel-header">
+          ${this.renderSelectLang()}
+          ${this.showPopup ? this.renderLangs() : ''}
+        </div>
+        <div class="code-panel-body">
+          <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;"> Copy </button>
+          ${this.renderCode()}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  randomParam(type, name, secureStore = false) {
+    var _this$resolved_spec$s;
+
+    const securityObj = (_this$resolved_spec$s = this.resolved_spec.securitySchemes) === null || _this$resolved_spec$s === void 0 ? void 0 : _this$resolved_spec$s.find(v => v.securitySchemeId === name);
+
+    if (securityObj) {
+      return securityObj.value;
+    }
+
+    if (secureStore) {
+      const trEl = this.shadowRoot.getElementById(`security-scheme-${name}`);
+      console.log(type, name, secureStore, trEl); // eslint-disable-line
+
+      if (trEl) {
+        return trEl.value;
+      }
+    }
+
+    const store = JSON.parse(localStorage.getItem(code_simples_localStorageKey)) || {};
+
+    if (store[name]) {
+      return store[name];
+    }
+
+    if (this.vals[name]) return this.vals[name];
+
+    if (type === 'string') {
+      return 'str';
+    }
+
+    if (type === 'integer') {
+      return `${Math.floor(Math.random() * 5)}`;
+    }
+
+    if (type === 'boolean') {
+      return 'true';
+    }
+
+    return '';
+  }
+
+  renderCode() {
+    const headers = [];
+    const queryString = [];
+    const postData = [];
+    const cookies = [];
+    const method = this.method.toUpperCase();
+    let url = this.serverUrl + this.path;
+
+    for (const i in this.parameters) {
+      const {
+        name
+      } = this.parameters[i];
+      const {
+        type
+      } = this.parameters[i].schema;
+
+      if (this.parameters[i].in === 'cookie') {
+        cookies.push({
+          name,
+          value: this.randomParam(type, name)
+        });
+      }
+
+      if (this.parameters[i].in === 'header') {
+        headers.push({
+          name,
+          value: this.randomParam(type, name, true)
+        });
+      }
+
+      if (this.parameters[i].in === 'query' && this.parameters[i].required) {
+        queryString.push({
+          name,
+          value: this.randomParam(type, name)
+        });
+      }
+
+      if (this.parameters[i].in === 'path' && this.parameters[i].required) {
+        url = url.replaceAll(`{${name}}`, this.randomParam(type, name));
+      }
+
+      if (this.parameters[i].in === 'body' && this.parameters[i].required) {
+        postData.push({
+          name,
+          value: this.randomParam(type, name)
+        });
+      }
+    }
+
+    if (this.request_body && Object.keys(this.request_body).length > 0) {
+      const {
+        content
+      } = this.request_body;
+
+      for (const mimeType in content) {
+        this.mimeType = mimeType;
+
+        if (content[mimeType].schema.properties) {
+          for (const fieldName in content[mimeType].schema.properties) {
+            if (!this.vals[fieldName]) continue;
+
+            if (method === 'POST' || method === 'PUT') {
+              postData.push({
+                name: fieldName,
+                value: this.vals[fieldName]
+              });
+            } else {
+              url = url.replaceAll(`{${fieldName}}`, this.vals[fieldName]);
+            }
+          }
+        }
+      }
+    }
+
+    const param = {
+      method,
+      url,
+      headers,
+      queryString,
+      cookies
+    };
+
+    if (method === 'POST' && postData.length > 0) {
+      param.postData = {
+        mimeType: this.mimeType,
+        params: JSON.parse(JSON.stringify(postData))
+      };
+    }
+
+    const snippet = new (src_default())(param);
+    const code = snippet.convert(this.lang, this.client) || ''; // const code = 'snippet.convert(this.lang, this.client) || null';
+
+    return $`${unsafe_html_o((0,es/* highlight */.CH)(code, this.lang))}`;
+  }
+
+  renderSelectLang() {
+    return $` <div @click="${this.onOpenPopupClick}" class="selector">
+      Request Sample Language: <span>${this.lang}</span>
+      ${this.client ? $`<span>/</span>` : ''}
+      ${this.client ? $`<span>${this.client}</span> ` : ''}
+      <span>&#709;</span>
+    </div>`;
+  }
+
+  renderLangs() {
+    return $` <div class="code-popup">
+      ${requestSampleConfigs.map((v, i) => $`
+          <div class="code-popup-item" @mouseover="${this.onLangHover}" data-index="${i}">
+            <a href="#" @click="${this.onLangClick}" data-index="${i}">${v.snippet}</a>
+            ${v.libraries ? $`<span class="code-popup-item-icon">&#62;</span>` : ''}
+            ${i === this.onPopupIndex ? this.renderClient() : ''}
+          </div>
+        `)}
+    </div>`;
+  }
+
+  renderClient() {
+    const select = requestSampleConfigs[this.onPopupIndex];
+    return $`<div class="code-popup-sublist">
+      ${Object.keys(select.libraries).map(v => $`
+        <div class="code-popup-item">
+          <a href="#" @click="${this.onClientClick}" data-client="${select.libraries[v]}" data-index="${this.onPopupIndex}">${v}</a>
+        </div>
+      `)};
+    </div>`;
+  }
+
+  onOpenPopupClick(e) {
+    e.preventDefault();
+    this.showPopup = !this.showPopup;
+    this.requestUpdate();
+  }
+
+  onLangHover(e) {
+    e.preventDefault();
+    if (!e.target.dataset.index) return;
+    const select = requestSampleConfigs[e.target.dataset.index];
+    if (!select || !select.libraries) return;
+    this.onPopupIndex = parseInt(e.target.dataset.index, 10);
+    this.requestUpdate();
+  }
+
+  onClientClick(e) {
+    e.preventDefault();
+    if (!e.target.dataset.index) return;
+    const select = requestSampleConfigs[e.target.dataset.index];
+    if (!select || !select.libraries) return;
+    this.lang = select.snippet;
+    this.client = e.target.dataset.client;
+    this.showPopup = false;
+    this.onPopupIndex = null;
+    this.requestUpdate();
+  }
+
+  onLangClick(e) {
+    e.preventDefault();
+    if (!e.target.dataset.index) return;
+    const select = requestSampleConfigs[e.target.dataset.index];
+    if (!select || select.libraries) return;
+    this.lang = select.snippet;
+    this.showPopup = false;
+    this.onPopupIndex = null;
+    this.requestUpdate();
+  }
+
+} // Register the element with the browser
+
+customElements.define('code-simples', CodeSimples);
 ;// CONCATENATED MODULE: ./src/components/api-request.js
 
  // eslint-disable-line import/extensions
@@ -36108,6 +36668,7 @@ customElements.define('tag-input', TagInput);
  // eslint-disable-line import/extensions
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -36163,6 +36724,9 @@ class ApiRequest extends lit_element_s {
         type: Array
       },
       request_body: {
+        type: Object
+      },
+      resolved_spec: {
         type: Object
       },
       api_keys: {
@@ -36369,8 +36933,10 @@ class ApiRequest extends lit_element_s {
   }
 
   render() {
+    console.log(1111, this.resolved_spec); // eslint-disable-line
+
     return $`
-    <div class="col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
+    <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
         ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
       </div>
@@ -36382,6 +36948,19 @@ class ApiRequest extends lit_element_s {
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('cookie'))}
         ${this.allowTry === 'false' ? '' : $`${this.apiCallTemplate()}`}
       </div>  
+      
+      <code-simples
+          class = "mode-new"
+          method = "${this.method}"
+          path = "${this.path}"
+          .resolved_spec = "${this.resolved_spec}"
+          .security = "${this.security}"
+          .parameters = "${this.parameters}"
+          .request_body = "${this.request_body}"
+          .api_keys = "${this.api_keys}"
+          .servers = "${this.servers}"
+          server-url = "${this.serverUrl}"
+        ></code-simples>
     </div>
     `;
   }
@@ -36579,9 +37158,10 @@ class ApiRequest extends lit_element_s {
                     data-param-serialize-style = "${paramStyle}"
                     data-param-serialize-explode = "${paramExplode}"
                     data-param-allow-reserved = "${paramAllowReserved}"
+                    data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                     data-array = "true"
                     placeholder = "add-multiple &#x21a9;"
-                    .value = "${this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : []}"
+                    .value="${param['x-fill-example'] === 'no' ? [] : live_l(this.fillRequestFieldsWithExample === 'true' ? Array.isArray(example.exampleVal) ? example.exampleVal : [example.exampleVal] : [])}"
                   >
                   </tag-input>` : paramSchema.type === 'object' ? $`
                     <div class="tab-panel col" style="border-width:0 0 1px 0;">
@@ -36606,8 +37186,9 @@ class ApiRequest extends lit_element_s {
                             data-param-serialize-style = "${paramStyle}"
                             data-param-serialize-explode = "${paramExplode}"
                             data-param-allow-reserved = "${paramAllowReserved}"
+                            data-x-fill-example = "${param['x-fill-example'] || 'yes'}"
                             spellcheck = "false"
-                            .textContent = "${this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : ''}"
+                            .textContent="${param['x-fill-example'] === 'no' ? '' : live_l(this.fillRequestFieldsWithExample === 'true' ? example.exampleVal : '')}"
                             style = "resize:vertical; width:100%; height: ${'read focused'.includes(this.renderStyle) ? '180px' : '120px'};"
                           ></textarea>
                         </div>` : $`
@@ -37769,471 +38350,6 @@ class ApiRequest extends lit_element_s {
 } // Register the element with the browser
 
 customElements.define('api-request', ApiRequest);
-// EXTERNAL MODULE: ./node_modules/reprism/es/index.js
-var es = __webpack_require__(212);
-// EXTERNAL MODULE: ./node_modules/httpsnippet/src/index.js
-var httpsnippet_src = __webpack_require__(9042);
-var src_default = /*#__PURE__*/__webpack_require__.n(httpsnippet_src);
-// EXTERNAL MODULE: ./node_modules/prismjs/themes/prism-okaidia.css
-var prism_okaidia = __webpack_require__(2006);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/jsx.js
-var jsx = __webpack_require__(3579);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/java.js
-var java = __webpack_require__(5951);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/javascript.js
-var javascript = __webpack_require__(6468);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/clojure.js
-var clojure = __webpack_require__(681);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/csharp.js
-var csharp = __webpack_require__(7474);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/http.js
-var languages_http = __webpack_require__(5526);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/kotlin.js
-var kotlin = __webpack_require__(5696);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/powershell.js
-var powershell = __webpack_require__(1693);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/r.js
-var languages_r = __webpack_require__(2582);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/ruby.js
-var ruby = __webpack_require__(1351);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/swift.js
-var swift = __webpack_require__(6462);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/bash.js
-var bash = __webpack_require__(9438);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/ocaml.js
-var ocaml = __webpack_require__(2904);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/python.js
-var python = __webpack_require__(6557);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/json.js
-var languages_json = __webpack_require__(601);
-// EXTERNAL MODULE: ./node_modules/reprism/languages/textile.js
-var textile = __webpack_require__(4171);
-// EXTERNAL MODULE: ./src/components/reprism-php.js
-var reprism_php = __webpack_require__(9431);
-;// CONCATENATED MODULE: ./src/components/code-simples.js
-
-
-
-
-
-
-
-
-
-
- // eslint-disable-line import/extensions
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-(0,es/* loadLanguages */.Nl)(jsx/* default */.Z, java/* default */.Z, bash/* default */.Z, javascript/* default */.Z, clojure/* default */.Z, csharp/* default */.Z, languages_http/* default */.Z, kotlin/* default */.Z, reprism_php/* default */.Z, powershell/* default */.Z, languages_r/* default */.Z, ruby/* default */.Z, swift/* default */.Z, ocaml/* default */.Z, python/* default */.Z, languages_json/* default */.Z, textile/* default */.Z);
-
-if (typeof document !== 'undefined') {
-  // Provide window.Prism for plugins
-  window.Prism = es/* default */.ZP; // eslint-disable-next-line global-require
-
-  __webpack_require__(781);
-
-  es/* default.plugins.NormalizeWhitespace.setDefaults */.ZP.plugins.NormalizeWhitespace.setDefaults({
-    'remove-trailing': true,
-    'remove-indent': true,
-    'left-trim': true,
-    'right-trim': true,
-    'break-lines': 60,
-    'tabs-to-spaces': 4
-  });
-  es/* default.hooks.add */.ZP.hooks.add('before-sanity-check', env => {
-    env.element.innerHTML = env.element.innerHTML.replace(/<br>/g, '\n');
-    env.code = env.element.textContent;
-  });
-}
-
-const requestSampleConfigs = [{
-  snippet: 'shell',
-  libraries: {
-    cURL: 'curl',
-    HTTPie: 'httpie',
-    Wget: 'wget'
-  }
-}, {
-  snippet: 'javascript',
-  libraries: {
-    Fetch: 'fetch',
-    XMLHttpRequest: 'xmlhttprequest',
-    jQuery: 'jquery',
-    Axios: 'axios'
-  }
-}, // {
-//   snippet: 'node',
-//   libraries: {
-//     Native: 'native',
-//     Request: 'request',
-//     Unirest: 'unirest',
-//     Fetch: 'fetch',
-//     Axios: 'axios',
-//   },
-// },
-{
-  snippet: 'python',
-  libraries: {
-    'Python 3': 'python3',
-    Requests: 'requests'
-  }
-}, {
-  snippet: 'go'
-}, {
-  snippet: 'c'
-}, // 'Objective-C': {
-//     snippet: 'objectivec',
-// },
-{
-  snippet: 'ocaml'
-}, {
-  snippet: 'csharp',
-  libraries: {
-    HttpClient: 'httpclient',
-    RestSharp: 'restsharp'
-  }
-}, {
-  snippet: 'java',
-  libraries: {
-    AsyncHttp: 'asynchttp',
-    NetHttp: 'nethttp',
-    OkHttp: 'okhttp',
-    Unirest: 'unirest'
-  }
-}, {
-  snippet: 'http'
-}, {
-  snippet: 'clojure'
-}, {
-  snippet: 'kotlin'
-}, {
-  snippet: 'php',
-  libraries: {
-    'pecl/http 1': 'http1',
-    'pecl/http 2': 'http2',
-    cURL: 'curl'
-  }
-}, {
-  snippet: 'powershell',
-  libraries: {
-    WebRequest: 'webrequest',
-    RestMethod: 'restmethod'
-  }
-}, {
-  snippet: 'r'
-}, {
-  snippet: 'ruby'
-}, {
-  snippet: 'swift'
-}];
-class CodeSimples extends lit_element_s {
-  constructor() {
-    super();
-    this.url = '';
-    this.lang = 'javascript';
-    this.client = 'xmlhttprequest';
-    this.showPopup = false;
-    this.onPopupIndex = null;
-  }
-
-  static get properties() {
-    return {
-      serverUrl: {
-        type: String,
-        attribute: 'server-url'
-      },
-      servers: {
-        type: Array
-      },
-      method: {
-        type: String
-      },
-      path: {
-        type: String
-      },
-      security: {
-        type: Array
-      },
-      parameters: {
-        type: Array
-      },
-      request_body: {
-        type: Object
-      },
-      api_keys: {
-        type: Array
-      },
-      parser: {
-        type: Object
-      },
-      accept: {
-        type: String
-      }
-    };
-  }
-
-  static get styles() {
-    return [table_styles, input_styles, font_styles, flex_styles, border_styles, tab_styles, prism_styles, r`
-        .selector {
-          cursor: pointer;
-        }
-        .code-panel {
-          border-radius: 5px;
-          min-height: 500px;
-          outline: 2px solid rgba(0,0,0,0);
-          outline-offset: 2px;
-          overflow: hidden;
-          width: 100%;
-        }
-        
-        .code-panel-header {
-          align-items: center;
-          display: flex;
-          background-color: #e0e6f0;
-          border-color: #e0e6f0;
-          color: #66676b;
-          font-size: 12px;
-          line-height: 1;
-          padding-left: 16px;
-          padding-right: 12px;
-          position: relative;
-          user-select: none;
-          height: 30px;
-        }
-        
-        .code-panel-body {
-          background-color: #f2f5fb;
-          padding: 0;
-          position: relative;
-        }
-        
-        .code-popup {
-          background-color: #fff;
-          border: 1px solid #ccd0d1;
-          border-radius: 2px;
-          box-sizing: border-box;
-          left: 19px;
-          padding-bottom: 8px;
-          padding-top: 8px;
-          position: absolute;
-          top: 27px;
-          width: 273px;
-          z-index: 100000;
-        }
-        
-        .code-popup-item {
-          align-items: center;
-          display: flex;
-          font-size: 12px;
-          padding: 4px 12px 4px 4px;
-          white-space: nowrap;
-        }
-        
-        .code-popup-item-icon {
-          right: 10px;
-          position: absolute;
-        }
-        .code-popup-sublist {
-          background-color: #fff;
-          border: 1px solid #ccd0d1;
-          border-radius: 2px;
-          left: 271px;
-          position: absolute;
-          z-index: 10;
-        }
-        .toolbar-btn {
-          cursor: pointer;
-          padding: 4px;
-          margin: 0px 2px;
-          font-size: var(--font-size-small);
-          min-width: 50px;
-          color: var(--primary-color-invert);
-          border-radius: 2px;
-          border: none;
-          background-color: var(--primary-color);
-        }
-      `, custom_styles];
-  }
-
-  render() {
-    return $`<div class="col regular-font request-panel">
-      <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
-      <div class="code-panel">
-        <div class="code-panel-header">
-          ${this.renderSelectLang()}
-          ${this.showPopup ? this.renderLangs() : ''}
-        </div>
-        <div class="code-panel-body">
-          <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;"> Copy </button>
-          ${this.renderCode()}
-        </div>
-      </div>
-    </div>`;
-  }
-
-  randomParam(type) {
-    if (type === 'string') {
-      return 'str';
-    }
-
-    if (type === 'integer') {
-      return `${Math.floor(Math.random() * 5)}`;
-    }
-
-    if (type === 'boolean') {
-      return 'true';
-    }
-
-    return '';
-  }
-
-  renderCode() {
-    const headers = [];
-    const queryString = [];
-    const postData = [];
-    let url = this.serverUrl + this.path;
-
-    for (const i in this.parameters) {
-      if (this.parameters[i].in === 'header') {
-        headers.push({
-          name: this.parameters[i].name,
-          value: this.randomParam(this.parameters[i].schema.type)
-        });
-      }
-
-      if (this.parameters[i].in === 'query' && this.parameters[i].required) {
-        queryString.push({
-          name: this.parameters[i].name,
-          value: this.randomParam(this.parameters[i].schema.type)
-        });
-      }
-
-      if (this.parameters[i].in === 'path' && this.parameters[i].required) {
-        url = url.replaceAll(`{${this.parameters[i].name}}`, this.randomParam(this.parameters[i].schema.type));
-      }
-
-      if (this.parameters[i].in === 'body' && this.parameters[i].required) {
-        postData.push({
-          name: this.parameters[i].name,
-          value: this.randomParam(this.parameters[i].schema.type)
-        });
-      }
-    }
-
-    const method = this.method.toUpperCase();
-    const param = {
-      method,
-      url,
-      headers,
-      queryString
-    };
-
-    if (method === 'POST' && postData.length > 0) {
-      param.postData = {
-        mimeType: this.mimeType,
-        params: JSON.parse(JSON.stringify(postData))
-      };
-    } // eslint-disable-next-line no-console
-
-
-    console.log(param, this.lang, this.client, this.parameters);
-    const snippet = new (src_default())(param);
-    const code = snippet.convert(this.lang, this.client) || ''; // const code = 'snippet.convert(this.lang, this.client) || null';
-
-    return $`${unsafe_html_o((0,es/* highlight */.CH)(code, this.lang))}`;
-  }
-
-  renderSelectLang() {
-    return $` <div @click="${this.onOpenPopupClick}" class="selector">
-      Request Sample Language: <span>${this.lang}</span>
-      ${this.client ? $`<span>/</span>` : ''}
-      ${this.client ? $`<span>${this.client}</span> ` : ''}
-      <span>&#709;</span>
-    </div>`;
-  }
-
-  renderLangs() {
-    return $` <div class="code-popup">
-      ${requestSampleConfigs.map((v, i) => $`
-          <div class="code-popup-item" @mouseover="${this.onLangHover}" data-index="${i}">
-            <a href="#" @click="${this.onLangClick}" data-index="${i}">${v.snippet}</a>
-            ${v.libraries ? $`<span class="code-popup-item-icon">&#62;</span>` : ''}
-            ${i === this.onPopupIndex ? this.renderClient() : ''}
-          </div>
-        `)}
-    </div>`;
-  }
-
-  renderClient() {
-    const select = requestSampleConfigs[this.onPopupIndex];
-    return $`<div class="code-popup-sublist">
-      ${Object.keys(select.libraries).map(v => $`
-        <div class="code-popup-item">
-          <a href="#" @click="${this.onClientClick}" data-client="${select.libraries[v]}" data-index="${this.onPopupIndex}">${v}</a>
-        </div>
-      `)};
-    </div>`;
-  }
-
-  onOpenPopupClick(e) {
-    e.preventDefault();
-    this.showPopup = !this.showPopup;
-    this.requestUpdate();
-  }
-
-  onLangHover(e) {
-    e.preventDefault();
-    if (!e.target.dataset.index) return;
-    const select = requestSampleConfigs[e.target.dataset.index];
-    if (!select || !select.libraries) return;
-    this.onPopupIndex = parseInt(e.target.dataset.index, 10);
-    this.requestUpdate();
-  }
-
-  onClientClick(e) {
-    e.preventDefault();
-    if (!e.target.dataset.index) return;
-    const select = requestSampleConfigs[e.target.dataset.index];
-    if (!select || !select.libraries) return;
-    this.lang = select.snippet;
-    this.client = e.target.dataset.client;
-    this.showPopup = false;
-    this.onPopupIndex = null;
-    this.requestUpdate();
-  }
-
-  onLangClick(e) {
-    e.preventDefault();
-    if (!e.target.dataset.index) return;
-    const select = requestSampleConfigs[e.target.dataset.index];
-    if (!select || select.libraries) return;
-    this.lang = select.snippet;
-    this.showPopup = false;
-    this.onPopupIndex = null;
-    this.requestUpdate();
-  }
-
-} // Register the element with the browser
-
-customElements.define('code-simples', CodeSimples);
 ;// CONCATENATED MODULE: ./src/components/schema-table.js
 
  // eslint-disable-line import/extensions
@@ -38347,7 +38463,7 @@ class SchemaTable extends lit_element_s {
 
 
   render() {
-    var _this$data, _this$data2, _this$data3;
+    var _this$data, _this$data2, _this$data3, _this$data4, _this$data5, _this$data6;
 
     return $`
       <div class="table ${this.schemaDescriptionExpanded === 'true' ? 'expanded-descr' : 'collapsed-descr'}">
@@ -38370,13 +38486,13 @@ class SchemaTable extends lit_element_s {
             <div class='key-descr' style='font-family:var(--font-regular); font-weight:bold; color:var(--fg);'> Description </div>
           </div>
           ${this.data ? $`
-              ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], this.data['::array-type'])}` : ''}  
+              ${this.generateTree(this.data['::type'] === 'array' ? this.data['::props'] : this.data, this.data['::type'], ((_this$data4 = this.data) === null || _this$data4 === void 0 ? void 0 : _this$data4['::array-type']) || '', '', ((_this$data5 = this.data) === null || _this$data5 === void 0 ? void 0 : _this$data5['::description']) || '', 0, 0, this.data['::readwrite'] ? this.data['::readwrite'] : '', ((_this$data6 = this.data) === null || _this$data6 === void 0 ? void 0 : _this$data6['::deprecated']) === 'deprecated')}` : ''}  
         </div>
       </div>  
     `;
   }
 
-  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '') {
+  generateTree(data, dataType = 'object', arrayType = '', key = '', description = '', schemaLevel = 0, indentLevel = 0, readOrWrite = '', isDeprecated = false) {
     var _data$Type, _keyLabel;
 
     if (this.schemaHideReadOnly === 'true') {
@@ -38441,22 +38557,22 @@ class SchemaTable extends lit_element_s {
       if (dataType === 'array') {
         detailObjType = 'array of object'; // Array of Object
       } else {
-        detailObjType = 'object';
+        detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     } else if (data['::type'] === 'array') {
       if (dataType === 'array') {
         // detailObjType = 'array of array'; // Array of array
         detailObjType = `array of array ${arrayType !== 'object' ? `of ${arrayType}` : ''}`; // Array of array
       } else {
-        detailObjType = 'array';
+        detailObjType = data['::dataTypeLabel'] || data['::type'];
       }
     }
 
     if (typeof data === 'object') {
       return $`
         ${newSchemaLevel >= 0 && key ? $`
-            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${data['::deprecated'] ? 'Deprecated' : ''}">
-              <div class="td key ${data['::deprecated'] ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
+            <div class='tr ${newSchemaLevel <= this.schemaExpandLevel ? 'expanded' : 'collapsed'} ${data['::type']}' data-obj='${keyLabel}' title="${isDeprecated ? 'Deprecated' : ''}">
+              <div class="td key ${isDeprecated ? 'deprecated' : ''}" style='padding-left:${leftPadding}px'>
                 ${keyLabel || keyDescr ? $`
                     <span 
                       class='obj-toggle ${newSchemaLevel < this.schemaExpandLevel ? 'expanded' : 'collapsed'}'
@@ -38465,7 +38581,7 @@ class SchemaTable extends lit_element_s {
                     >
                       ${schemaLevel < this.schemaExpandLevel ? '-' : '+'}
                     </span>` : ''}
-                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${data['::deprecated'] ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
+                ${data['::type'] === 'xxx-of-option' || data['::type'] === 'xxx-of-array' || key.startsWith('::OPTION') ? $`<span class="xxx-of-key" style="margin-left:-6px">${keyLabel}</span><span class="${isOneOfLabel ? 'xxx-of-key' : 'xxx-of-descr'}">${keyDescr}</span>` : keyLabel.endsWith('*') ? $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated ? '✗' : ''} ${keyLabel.substring(0, keyLabel.length - 1)}</span><span style='color:var(--red);'>*</span>` : $`<span class="key-label" style="display:inline-block; margin-left:-6px;">${isDeprecated ? '✗' : ''} ${keyLabel === '::props' ? '' : keyLabel}</span>`}
                 ${data['::type'] === 'xxx-of' && dataType === 'array' ? $`<span style="color:var(--primary-color)">ARRAY</span>` : ''} 
               </div>
               <div class='td key-type' title="${data['::readwrite'] === 'readonly' ? 'Read-Only' : data['::readwrite'] === 'writeonly' ? 'Write-Only' : ''}">
@@ -38484,9 +38600,9 @@ class SchemaTable extends lit_element_s {
                   </div>` : ''}
           `}
         <div class='object-body'>
-        ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '')}` : $`
+        ${Array.isArray(data) && data[0] ? $`${this.generateTree(data[0], 'xxx-of-option', '', '::ARRAY~OF', '', newSchemaLevel, newIndentLevel, '', data['::deprecated'] || false)}` : $`
             ${Object.keys(data).map(dataKey => $`
-              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '')}`}
+              ${['::title', '::description', '::type', '::props', '::deprecated', '::array-type', '::readwrite', '::dataTypeLabel'].includes(dataKey) ? data[dataKey]['::type'] === 'array' || data[dataKey]['::type'] === 'object' ? $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '', data[dataKey]['::deprecated'] || false)}` : '' : $`${this.generateTree(data[dataKey]['::type'] === 'array' ? data[dataKey]['::props'] : data[dataKey], data[dataKey]['::type'], data[dataKey]['::array-type'] || '', dataKey, data[dataKey]['::description'], newSchemaLevel, newIndentLevel, data[dataKey]['::readwrite'] ? data[dataKey]['::readwrite'] : '', data[dataKey]['::deprecated'] || false)}`}
             `)}
           `}
         <div>
@@ -38509,7 +38625,7 @@ class SchemaTable extends lit_element_s {
 
     if (dataType === 'array') {
       dataTypeHtml = $` 
-        <div class='td key-type ${dataTypeCss}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
+        <div class='td key-type ${dataTypeCss} ${isDeprecated ? 'deprecated' : ''}' title="${readOrWrite === 'readonly' ? 'Read-Only' : readOrWriteOnly === 'writeonly' ? 'Write-Only' : ''}">
           [${type}] ${readOrWrite === 'readonly' ? '🆁' : readOrWrite === 'writeonly' ? '🆆' : ''}
         </div>`;
     } else {
@@ -38520,9 +38636,9 @@ class SchemaTable extends lit_element_s {
     }
 
     return $`
-      <div class = "tr primitive" title="${deprecated ? 'Deprecated' : ''}">
-        <div class="td key ${deprecated}" style='padding-left:${leftPadding}px'>
-          ${deprecated ? $`<span style='color:var(--red);'>✗</span>` : ''}
+      <div class = "tr primitive" title="${isDeprecated || deprecated === 'deprecated' ? 'Deprecated' : ''}">
+        <div class="td key ${isDeprecated ? 'deprecated' : ''} ${deprecated}" style='padding-left:${leftPadding}px'>
+          ${isDeprecated || deprecated === 'deprecated' ? $`<span style='color:var(--red);'>✗</span>` : ''}
           ${(_keyLabel = keyLabel) !== null && _keyLabel !== void 0 && _keyLabel.endsWith('*') ? $`
               <span class="key-label">${keyLabel.substring(0, keyLabel.length - 1)}</span>
               <span style='color:var(--red);'>*</span>` : key.startsWith('::OPTION') ? $`<span class='xxx-of-key'>${keyLabel}</span><span class="xxx-of-descr">${keyDescr}</span>` : $`${keyLabel ? $`<span class="key-label"> ${keyLabel}</span>` : $`<span class="xxx-of-descr">${schemaTitle}</span>`}`}
@@ -38932,7 +39048,6 @@ customElements.define('api-response', ApiResponse);
 
 
 
-
 /* eslint-disable indent */
 
 function headingRenderer(tagElementId) {
@@ -38944,7 +39059,7 @@ function headingRenderer(tagElementId) {
 }
 
 function expandedEndpointBodyTemplate(path, tagName = '') {
-  var _path$xBadges, _path$servers, _path$servers$, _path$servers2, _path$servers2$;
+  var _path$xBadges, _path$servers, _path$servers$;
 
   const acceptContentTypes = new Set();
 
@@ -38991,17 +39106,6 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
         <slot name="${path.elementId}"></slot>`}
       ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
       ${pathSecurityTemplate.call(this, path.security)}
-      <code-simples
-          class = "${this.renderStyle}-mode-new"
-          method = "${path.method}"
-          path = "${path.path}"
-          .security = "${path.security}"
-          .parameters = "${path.parameters}"
-          .request_body = "${path.requestBody}"
-          .api_keys = "${nonEmptyApiKeys}"
-          .servers = "${path.servers}"
-          server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
-        ></code-simples>
       
       <div class='expanded-req-resp-container'>
         <api-request
@@ -39015,7 +39119,8 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}"
-          server-url = "${((_path$servers2 = path.servers) === null || _path$servers2 === void 0 ? void 0 : (_path$servers2$ = _path$servers2[0]) === null || _path$servers2$ === void 0 ? void 0 : _path$servers2$.url) || this.selectedServer.computedUrl}"
+          .resolved_spec="${this.resolvedSpec}"
+          server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"
           accept = "${accept}"
@@ -39384,7 +39489,21 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 
 function navbarTemplate() {
-  var _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
+  var _this$attributes$spec, _this$attributes$spec2, _this$attributes$spec3, _this$attributes$spec4, _this$attributes$spec5, _this$attributes$spec6, _this$attributes$spec7, _this$attributes$spec8, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
+
+  let selectedLang = (_this$attributes$spec = (_this$attributes$spec2 = this.attributes['spec-lang']) === null || _this$attributes$spec2 === void 0 ? void 0 : _this$attributes$spec2.value) !== null && _this$attributes$spec !== void 0 ? _this$attributes$spec : null;
+  let langs = (_this$attributes$spec3 = (_this$attributes$spec4 = this.attributes['spec-langs']) === null || _this$attributes$spec4 === void 0 ? void 0 : _this$attributes$spec4.value) !== null && _this$attributes$spec3 !== void 0 ? _this$attributes$spec3 : null;
+
+  if (langs && typeof langs === 'string') {
+    langs = window[langs];
+  }
+
+  let selectedName = (_this$attributes$spec5 = (_this$attributes$spec6 = this.attributes['spec-name']) === null || _this$attributes$spec6 === void 0 ? void 0 : _this$attributes$spec6.value) !== null && _this$attributes$spec5 !== void 0 ? _this$attributes$spec5 : null;
+  let names = (_this$attributes$spec7 = (_this$attributes$spec8 = this.attributes['spec-names']) === null || _this$attributes$spec8 === void 0 ? void 0 : _this$attributes$spec8.value) !== null && _this$attributes$spec7 !== void 0 ? _this$attributes$spec7 : null;
+
+  if (names && typeof names === 'string') {
+    names = window[names];
+  }
 
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return $`
@@ -39398,7 +39517,7 @@ function navbarTemplate() {
   <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
     ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}">
+        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
           ${this.allowSearch === 'false' ? '' : $`
               <div style="display:flex; flex:1; line-height:22px;">
                 <input id="nav-bar-search" 
@@ -39423,6 +39542,22 @@ function navbarTemplate() {
             `}
         </div>
       `}
+    ${$`<nav class='nav-lang' part="section-lang-scroll">
+      ${!langs || !names ? '' : $`
+      <select class="textbox" @change="${e => {
+    selectedLang = e.target.value;
+    window.selectedLang(selectedLang, selectedName);
+  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+        ${Object.keys(langs).map(lang => $`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
+      </select>
+      <select @change="${e => {
+    selectedName = e.target.value;
+    window.selectedLang(selectedLang, selectedName);
+  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+        ${Object.keys(names).map(name => $`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
+      </select>
+      `}
+        `}
     ${$`<nav class='nav-scroll' part="section-navbar-scroll">
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
@@ -39841,7 +39976,8 @@ function endpointBodyTemplate(path) {
           .parameters = "${path.parameters}"
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
-          .servers = "${path.servers}" 
+          .servers = "${path.servers}"
+          resolved_spec="${this.resolvedSpec}"
           server-url = "${path.servers && path.servers.length > 0 ? path.servers[0].url : this.selectedServer.computedUrl}" 
           active-schema-tab = "${this.defaultSchemaTab}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
@@ -40739,8 +40875,10 @@ class RapiDoc extends lit_element_s {
     };
     this.showSummaryWhenCollapsed = true;
     this.isIntersectionObserverActive = true;
+    this.preload = true;
     this.intersectionObserver = new IntersectionObserver(entries => {
       this.onIntersect(entries);
+      this.preload = false;
     }, intersectionObserverOptions);
   }
 
@@ -41024,6 +41162,27 @@ class RapiDoc extends lit_element_s {
       },
       advancedSearchMatches: {
         type: Object
+      },
+      // customspec
+      specLangs: {
+        type: Object,
+        attribute: 'spec-langs'
+      },
+      specNames: {
+        type: Object,
+        attribute: 'spec-names'
+      },
+      specLang: {
+        type: String,
+        attribute: 'spec-lang'
+      },
+      specName: {
+        type: String,
+        attribute: 'spec-name'
+      },
+      apikey: {
+        type: String,
+        attribute: 'apikey'
       }
     };
   }
@@ -41044,6 +41203,9 @@ class RapiDoc extends lit_element_s {
         background-color:var(--bg);
         font-family:var(--font-regular);
       }
+      
+      .hidden { display:none; }
+      
       .body {
         display:flex;
         height:100%;
@@ -41546,6 +41708,9 @@ class RapiDoc extends lit_element_s {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
+    // if (name === 'apikey') {
+    //   applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+    // }
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -41717,6 +41882,7 @@ class RapiDoc extends lit_element_s {
       const spec = await ProcessSpec.call(this, specUrl, this.generateMissingTags === 'true', this.sortTags === 'true', this.getAttribute('sort-endpoints-by'), this.getAttribute('api-key-name'), this.getAttribute('api-key-location'), this.getAttribute('api-key-value'), this.getAttribute('server-url'));
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
+      console.log(spec); // eslint-disable-line no-console
     } catch (err) {
       this.loading = false;
       this.loadFailed = true;
@@ -41777,10 +41943,13 @@ class RapiDoc extends lit_element_s {
         this.scrollTo(elementId);
       }
     } else if (this.renderStyle === 'focused') {
-      var _this$resolvedSpec$ta;
+      // If goto-path is provided and no location-hash is present then try to scroll to default element
+      if (!this.gotoPath) {
+        var _this$resolvedSpec$ta;
 
-      const defaultElementId = this.showInfo ? 'overview' : (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
-      this.scrollTo(defaultElementId);
+        const defaultElementId = this.showInfo ? 'overview' : (_this$resolvedSpec$ta = this.resolvedSpec.tags[0]) === null || _this$resolvedSpec$ta === void 0 ? void 0 : _this$resolvedSpec$ta.paths[0];
+        this.scrollTo(defaultElementId);
+      }
     }
   }
 
@@ -41875,7 +42044,7 @@ class RapiDoc extends lit_element_s {
         const newNavEl = this.shadowRoot.getElementById(`link-${entry.target.id}`); // Add active class in the new element
 
         if (newNavEl) {
-          if (this.updateRoute === 'true') {
+          if (this.updateRoute === 'true' && !this.preload) {
             window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
           }
 
@@ -41951,7 +42120,6 @@ class RapiDoc extends lit_element_s {
       // for focused mode update this.focusedElementId to update the rendering, else it wont find the needed html elements
       // focusedElementId will get validated in the template
       this.focusedElementId = elementId;
-      await sleep(0);
     }
 
     if (this.renderStyle === 'view') {
@@ -68634,7 +68802,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("b36bf030537fa6d046b4")
+/******/ 		__webpack_require__.h = () => ("432ea966ae7d4c4bc760")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

@@ -34,6 +34,8 @@ import php from './reprism-php';
 
 loadLanguages(jsx, java, bash, javascript, clojure, csharp, http, kotlin, php, powershell, r, ruby, swift, ocaml, python, json, textile);
 
+const localStorageKey = 'rapidoc';
+
 if (typeof document !== 'undefined') {
   // Provide window.Prism for plugins
   window.Prism = Prism;
@@ -173,6 +175,7 @@ export default class CodeSimples extends LitElement {
       request_body: { type: Object },
       api_keys: { type: Array },
       parser: { type: Object },
+      resolved_spec: { type: Object },
       accept: { type: String },
     };
   }
@@ -294,7 +297,22 @@ export default class CodeSimples extends LitElement {
     </div>`;
   }
 
-  randomParam(type, name) {
+  randomParam(type, name, secureStore = false) {
+    const securityObj = this.resolved_spec.securitySchemes?.find((v) => (v.securitySchemeId === name));
+    if (securityObj) {
+      return securityObj.value;
+    }
+    if (secureStore) {
+      const trEl = this.shadowRoot.getElementById(`security-scheme-${name}`);
+      console.log(type, name, secureStore, trEl); // eslint-disable-line
+      if (trEl) {
+        return trEl.value;
+      }
+    }
+    const store = JSON.parse(localStorage.getItem(localStorageKey)) || {};
+    if (store[name]) {
+      return store[name];
+    }
     if (this.vals[name]) return this.vals[name];
     if (type === 'string') {
       return 'str';
@@ -322,7 +340,7 @@ export default class CodeSimples extends LitElement {
         cookies.push({ name, value: this.randomParam(type, name) });
       }
       if (this.parameters[i].in === 'header') {
-        headers.push({ name, value: this.randomParam(type, name) });
+        headers.push({ name, value: this.randomParam(type, name, true) });
       }
       if (this.parameters[i].in === 'query' && this.parameters[i].required) {
         queryString.push({ name, value: this.randomParam(type, name) });

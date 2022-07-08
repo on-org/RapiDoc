@@ -37,6 +37,17 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 /* eslint-disable indent */
 export default function navbarTemplate() {
+  let selectedLang = this.attributes['spec-lang']?.value ?? null;
+  let langs = this.attributes['spec-langs']?.value ?? null;
+  if (langs && typeof langs === 'string') {
+    langs = window[langs];
+  }
+  let selectedName = this.attributes['spec-name']?.value ?? null;
+  let names = this.attributes['spec-names']?.value ?? null;
+  if (names && typeof names === 'string') {
+    names = window[names];
+  }
+
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`
       <nav class='nav-bar' part="section-navbar">
@@ -85,6 +96,24 @@ export default function navbarTemplate() {
         </div>
       `
     }
+    ${html`<nav class='nav-lang' part="section-lang-scroll">
+      ${(!langs || !names)
+    ? ''
+    : html`
+      <select class="textbox" @change="${(e) => {
+        selectedLang = e.target.value;
+        window.selectedLang(selectedLang, selectedName);
+      }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+        ${Object.keys(langs).map((lang) => html`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
+      </select>
+      <select @change="${(e) => {
+        selectedName = e.target.value;
+        window.selectedLang(selectedLang, selectedName);
+      }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+        ${Object.keys(names).map((name) => html`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
+      </select>
+      `}
+        `}
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''

@@ -76,6 +76,7 @@ export function expandedEndpointBodyTemplate(path, tagName = '') {
           .request_body = "${path.requestBody}"
           .api_keys = "${nonEmptyApiKeys}"
           .servers = "${path.servers}"
+          .resolved_spec="${this.resolvedSpec}"
           server-url = "${path.servers?.[0]?.url || this.selectedServer.computedUrl}"
           fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
           allow-try = "${this.allowTry}"

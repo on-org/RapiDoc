@@ -9,6 +9,14 @@
       gtag('js', new Date());
 
       gtag('config', 'UA-132775238-1');
+
+      window.apikey = 'aaaa';
+      window.speclangs = {ru:'Русский', en: 'English'};
+      window.specnames = {api:'Апи', sub_api: 'Другое апи'};
+      window.selectedLang = function (land, doc) {
+        alert(`Выбран язык ${land} для документа ${doc}`);
+      };
+
     </script>
 
     <meta charset="utf-8">
@@ -16,13 +24,20 @@
     <script type="module" src="../rapidoc-min.js"></script>
   </head>
   <body>
-    <rapi-doc 
+    <rapi-doc
       show-info = "true"
+      spec-data = "specdata"
       spec-url = "../specs/petstore_extended.yaml"
+
+      spec-lang = "ru"
+      spec-name = "sub_api"
+      spec-langs = "speclangs"
+      spec-names = "specnames"
+
       theme = "light"
-      show-header = "false" 
+      show-header = "false"
       render-style = "read"
-      allow-try = "false" 
+      allow-try = "false"
     > </rapi-doc>
   </body>
 </html>

@@ -51,6 +51,7 @@ export default class ApiRequest extends LitElement {
       security: { type: Array },
       parameters: { type: Array },
       request_body: { type: Object },
+      resolved_spec: { type: Object },
       api_keys: { type: Array },
       parser: { type: Object },
       accept: { type: String },
@@ -197,6 +198,7 @@ export default class ApiRequest extends LitElement {
   }
 
   render() {
+    console.log(1111, this.resolved_spec); // eslint-disable-line
     return html`
     <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
@@ -215,6 +217,7 @@ export default class ApiRequest extends LitElement {
           class = "mode-new"
           method = "${this.method}"
           path = "${this.path}"
+          .resolved_spec = "${this.resolved_spec}"
           .security = "${this.security}"
           .parameters = "${this.parameters}"
           .request_body = "${this.request_body}"

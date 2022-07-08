@@ -66,7 +66,7 @@ export default async function ProcessSpec(specUrl, generateMissingTags = false, 
       if (!securitySchemeSet.has(kv[0])) {
         securitySchemeSet.add(kv[0]);
         const securityObj = { securitySchemeId: kv[0], ...kv[1] };
-        securityObj.value = '';
+        securityObj.value = securityObj.securitySchemeId === 'api_key' || securityObj.securitySchemeId === 'apikey' ? window.apikey ?? '' : '';
         securityObj.finalKeyValue = '';
         if (kv[1].type === 'apiKey' || kv[1].type === 'http') {
           securityObj.in = kv[1].in || 'header';

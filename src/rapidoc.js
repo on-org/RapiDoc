@@ -39,7 +39,11 @@ export default class RapiDoc extends LitElement {
     };
     this.showSummaryWhenCollapsed = true;
     this.isIntersectionObserverActive = true;
-    this.intersectionObserver = new IntersectionObserver((entries) => { this.onIntersect(entries); }, intersectionObserverOptions);
+    this.preload = true;
+    this.intersectionObserver = new IntersectionObserver((entries) => {
+      this.onIntersect(entries);
+      this.preload = false;
+    }, intersectionObserverOptions);
   }
 
   static get properties() {
@@ -133,6 +137,13 @@ export default class RapiDoc extends LitElement {
       focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
       showAdvancedSearchDialog: { type: Boolean },
       advancedSearchMatches: { type: Object },
+
+      // customspec
+      specLangs: { type: Object, attribute: 'spec-langs' },
+      specNames: { type: Object, attribute: 'spec-names' },
+      specLang: { type: String, attribute: 'spec-lang' },
+      specName: { type: String, attribute: 'spec-name' },
+      apikey: { type: String, attribute: 'apikey' },
     };
   }
 
@@ -162,6 +173,9 @@ export default class RapiDoc extends LitElement {
         background-color:var(--bg);
         font-family:var(--font-regular);
       }
+      
+      .hidden { display:none; }
+      
       .body {
         display:flex;
         height:100%;
@@ -545,6 +559,9 @@ export default class RapiDoc extends LitElement {
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
+    // if (name === 'apikey') {
+    //   applyApiKey.call(this, securitySchemeId, '', '', apiKeyValue);
+    // }
     if (name === 'spec-url') {
       if (oldVal !== newVal) {
         // put it at the end of event-loop to load all the attributes
@@ -715,6 +732,7 @@ export default class RapiDoc extends LitElement {
       );
       this.loading = false;
       this.afterSpecParsedAndValidated(spec);
+      console.log(spec); // eslint-disable-line no-console
     } catch (err) {
       this.loading = false;
       this.loadFailed = true;
@@ -844,7 +862,7 @@ export default class RapiDoc extends LitElement {
 
         // Add active class in the new element
         if (newNavEl) {
-          if (this.updateRoute === 'true') {
+          if (this.updateRoute === 'true' && !this.preload) {
             window.history.replaceState(null, null, `${window.location.href.split('#')[0]}${this.routePrefix || '#'}${entry.target.id}`);
           }
           newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });

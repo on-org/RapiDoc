@@ -380,6 +380,11 @@ export default function securitySchemeTemplate() {
   if (!providedApiKeys) {
     return;
   }
+  this.resolvedSpec.securitySchemes.map((v) => {
+    if (v.value !== '') {
+      onApiKeyChange.call(this, v.securitySchemeId, v.value);
+    }
+  });
   return html`
   <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
