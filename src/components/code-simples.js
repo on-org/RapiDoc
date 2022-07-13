@@ -8,52 +8,49 @@ import TabStyles from '~/styles/tab-styles';
 import PrismStyles from '~/styles/prism-styles';
 import CustomStyles from '~/styles/custom-styles';
 
-import Prism, { loadLanguages, highlight } from 'reprism';
+import Prism from 'prismjs';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import HTTPSnippet from 'httpsnippet';
 
-import 'prismjs/themes/prism-okaidia.css';
-
-import jsx from 'reprism/languages/jsx';
-import java from 'reprism/languages/java';
-import javascript from 'reprism/languages/javascript';
-import clojure from 'reprism/languages/clojure';
-import csharp from 'reprism/languages/csharp';
-import http from 'reprism/languages/http';
-import kotlin from 'reprism/languages/kotlin';
-import powershell from 'reprism/languages/powershell';
-import r from 'reprism/languages/r';
-import ruby from 'reprism/languages/ruby';
-import swift from 'reprism/languages/swift';
-import bash from 'reprism/languages/bash';
-import ocaml from 'reprism/languages/ocaml';
-import python from 'reprism/languages/python';
-import json from 'reprism/languages/json';
-import textile from 'reprism/languages/textile';
-import php from './reprism-php';
-
-loadLanguages(jsx, java, bash, javascript, clojure, csharp, http, kotlin, php, powershell, r, ruby, swift, ocaml, python, json, textile);
+import 'prismjs/components/prism-jsx';
+import 'prismjs/components/prism-java';
+import 'prismjs/components/prism-javascript';
+import 'prismjs/components/prism-clojure';
+import 'prismjs/components/prism-csharp';
+import 'prismjs/components/prism-http';
+import 'prismjs/components/prism-kotlin';
+import 'prismjs/components/prism-powershell';
+import 'prismjs/components/prism-r';
+import 'prismjs/components/prism-ruby';
+import 'prismjs/components/prism-swift';
+import 'prismjs/components/prism-bash';
+import 'prismjs/components/prism-ocaml';
+import 'prismjs/components/prism-python';
+import 'prismjs/components/prism-json';
+import 'prismjs/components/prism-textile';
+import './reprism-php';
+import { copyToClipboard } from '~/utils/common-utils';
 
 const localStorageKey = 'rapidoc';
-
-if (typeof document !== 'undefined') {
-  // Provide window.Prism for plugins
-  window.Prism = Prism;
-  // eslint-disable-next-line global-require
-  require('prismjs/plugins/normalize-whitespace/prism-normalize-whitespace');
-  Prism.plugins.NormalizeWhitespace.setDefaults({
-    'remove-trailing': true,
-    'remove-indent': true,
-    'left-trim': true,
-    'right-trim': true,
-    'break-lines': 60,
-    'tabs-to-spaces': 4,
-  });
-  Prism.hooks.add('before-sanity-check', (env) => {
-    env.element.innerHTML = env.element.innerHTML.replace(/<br>/g, '\n');
-    env.code = env.element.textContent;
-  });
-}
+//
+// if (typeof document !== 'undefined') {
+//   // Provide window.Prism for plugins
+//   window.Prism = Prism;
+//   // eslint-disable-next-line global-require
+//   require('prismjs/plugins/normalize-whitespace/prism-normalize-whitespace');
+//   Prism.plugins.NormalizeWhitespace.setDefaults({
+//     'remove-trailing': true,
+//     'remove-indent': true,
+//     'left-trim': true,
+//     'right-trim': true,
+//     'break-lines': 60,
+//     'tabs-to-spaces': 4,
+//   });
+//   Prism.hooks.add('before-sanity-check', (env) => {
+//     env.element.innerHTML = env.element.innerHTML.replace(/<br>/g, '\n');
+//     env.code = env.element.textContent;
+//   });
+// }
 
 const requestSampleConfigs = [
   {
@@ -268,6 +265,20 @@ export default class CodeSimples extends LitElement {
           border: none;
           background-color: var(--primary-color);
         }
+        
+        .code-selector {
+            color: black;
+            padding: 7px 0px;
+        }
+        
+        .code-popup-item.active > .code-selector {
+          color: white;
+        }
+        
+        .code-popup-item.active {
+            background-color: hsla(202, 100%, 55%, 1);
+            color: white;
+        }
       `,
       CustomStyles,
     ];
@@ -290,7 +301,7 @@ export default class CodeSimples extends LitElement {
           ${this.showPopup ? this.renderLangs() : ''}
         </div>
         <div class="code-panel-body">
-          <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;"> Copy </button>
+          <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;" @click='${(e) => { copyToClipboard(this.genCode(), e); }}'> Copy </button>
           ${this.renderCode()}
         </div>
       </div>
@@ -326,7 +337,7 @@ export default class CodeSimples extends LitElement {
     return '';
   }
 
-  renderCode() {
+  genCode() {
     const headers = [];
     const queryString = [];
     const postData = [];
@@ -382,9 +393,15 @@ export default class CodeSimples extends LitElement {
     }
 
     const snippet = new HTTPSnippet(param);
-    const code = snippet.convert(this.lang, this.client) || '';
-    // const code = 'snippet.convert(this.lang, this.client) || null';
-    return html`${unsafeHTML(highlight(code, this.lang))}`;
+    return snippet.convert(this.lang, this.client) || '';
+  }
+
+  renderCode() {
+    if (Prism.languages[this.lang]) {
+      const htmlCode = Prism.highlight(this.genCode(), Prism.languages[this.lang], this.lang);
+      return html`<pre class="prism ${this.lang} language-${this.lang}">${unsafeHTML(htmlCode)}</pre>`;
+    }
+    return html`${unsafeHTML(this.genCode())}`;
   }
 
   renderSelectLang() {
@@ -399,8 +416,8 @@ export default class CodeSimples extends LitElement {
   renderLangs() {
     return html` <div class="code-popup">
       ${requestSampleConfigs.map((v, i) => html`
-          <div class="code-popup-item" @mouseover="${this.onLangHover}" data-index="${i}">
-            <a href="#" @click="${this.onLangClick}" data-index="${i}">${v.snippet}</a>
+          <div class="code-popup-item ${i === this.onPopupIndex ? 'active' : ''}" @mouseover="${this.onLangHover}" data-index="${i}">
+            <a class="code-selector" href="#" @click="${this.onLangClick}" data-index="${i}">${v.snippet}</a>
             ${v.libraries ? html`<span class="code-popup-item-icon">&#62;</span>` : ''}
             ${i === this.onPopupIndex ? this.renderClient() : ''}
           </div>
@@ -413,7 +430,7 @@ export default class CodeSimples extends LitElement {
     return html`<div class="code-popup-sublist">
       ${Object.keys(select.libraries).map((v) => html`
         <div class="code-popup-item">
-          <a href="#" @click="${this.onClientClick}" data-client="${select.libraries[v]}" data-index="${this.onPopupIndex}">${v}</a>
+          <a class="code-selector" href="#" @click="${this.onClientClick}" data-client="${select.libraries[v]}" data-index="${this.onPopupIndex}">${v}</a>
         </div>
       `)};
     </div>`;

@@ -2,7 +2,8 @@
   "swagger": "2.0",
   "info": {
     "title": "Basic Spec",
-    "description": ""
+    "description": "",
+    "version": "1.0.0"
   },
   "consumes": [ "application/json"],
   "produces": [ "application/json"],

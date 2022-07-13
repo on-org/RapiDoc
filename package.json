@@ -39,10 +39,9 @@
     "copy-to-clipboard": "^3.3.1",
     "httpsnippet": "^2.0.0",
     "lit": "^2.2.7",
-    "marked": "^4.0.17",
+    "marked": "^4.0.18",
     "prismjs": "^1.28.0",
     "process": "^0.11.10",
-    "reprism": "^0.0.11",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.4",
     "xml-but-prettier": "^1.0.1"
