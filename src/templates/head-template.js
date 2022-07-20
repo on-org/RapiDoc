@@ -14,7 +14,7 @@ export default function headTemplate() {
   }
 
   return html`
-    <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;z-index: 999999;display: flex;grid-column-gap: 1rem;column-gap: 1rem;">
+    <header class="row regular-font head-title" part="section-header" style="">
       <button class="toggle-menu" @click="${() => {
         this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
       }}">Show Menu</button>

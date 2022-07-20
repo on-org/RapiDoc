@@ -39419,7 +39419,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
                 ` : ''}
               <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
               ${path.isWebhook ? $`<span part="section-operation-webhook style=" color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
-                  <div class='mono-font part="section-operation-webhook-method" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'>
+                  <div class='mono-font regular-font-size' part="section-operation-webhook-method" style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'>
                     <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
                     <span part="label-operation-path">${path.path}</span>
                   </div>
@@ -40380,7 +40380,7 @@ function headTemplate() {
   }
 
   return $`
-    <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;z-index: 999999;display: flex;grid-column-gap: 1rem;column-gap: 1rem;">
+    <header class="row regular-font head-title" part="section-header" style="">
       <button class="toggle-menu" @click="${() => {
     this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
   }}">Show Menu</button>
@@ -41166,17 +41166,19 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
       <!-- Main Content -->
       <main class="main-content regular-font" part="section-main-content">
-        ${headTemplate.call(this)}
         
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode" @click="${() => {
     this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
   }}">
+          
           ${this.loading === true ? $`<div class="loader"></div>` : $`
               ${this.loadFailed === true ? $`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : $`
                   <div class="operations-root" @click="${e => {
     this.handleHref(e);
   }}">
+                    ${headTemplate.call(this)}
+                    
                   ${this.renderStyle === 'focused' ? $`${focusedEndpointTemplate.call(this)}` : $`
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
                       ${this.allowServerSelection === 'true' ? serverTemplate.call(this) : ''}
@@ -41597,6 +41599,28 @@ class RapiDoc extends lit_element_s {
           align-items: center;
       }
       
+      .head-title {
+          background-color: var(--header-bg);
+          color: var(--header-fg);
+          padding:8px 4px 8px 4px;
+          min-height:48px;
+          z-index: 999999;
+          display: flex;
+          grid-column-gap: 1rem;
+          column-gap: 1rem;
+        }
+      @media (min-width: 768px) {
+       .head-title {
+          position: absolute;
+          width: calc(100% - 15.25rem);
+        }
+      }
+      @media (min-width: 1024px) {
+        .head-title {
+          position: absolute;
+          width: calc(100% - 17.25rem);
+        }
+      }
       @media (min-width: 1324px) {
         .doc-introduction-content-block {
           display: grid;
@@ -41660,8 +41684,7 @@ class RapiDoc extends lit_element_s {
             top: 10px;
         }
       }
-      
-      
+    
       // .main-content-inner--focused-mode {
       //   padding-top: 67px;
       // }
@@ -41689,7 +41712,7 @@ class RapiDoc extends lit_element_s {
       .section-gap,
       .section-gap--focused-mode,
       .section-gap--read-mode { 
-        padding: 0px 4px; 
+        padding: 70px 4px 0px 4px; 
       }
       .section-tag-header {
         position:relative;
@@ -41857,10 +41880,10 @@ class RapiDoc extends lit_element_s {
           padding: 0 0 0 24px; 
         }
         .section-gap--focused-mode {
-          padding: 24px 8px; 
+          padding: 70px 8px 24px 8px; 
         }
         .section-gap--read-mode { 
-          padding: 24px 8px; 
+          padding: 70px 8px 24px 8px; 
         }
         .endpoint-body {
           position: relative;
@@ -41874,10 +41897,10 @@ class RapiDoc extends lit_element_s {
           display:flex;
         }
         .section-gap--focused-mode { 
-          padding: 12px 10px 12px 10px; 
+          padding: 70px 10px 12px 10px; 
         }
         .section-gap--read-mode { 
-          padding: 24px 80px 12px 80px; 
+          padding: 70px 80px 12px 80px; 
         }
       }`, custom_styles];
   } // Startup
@@ -42573,14 +42596,15 @@ class RapiDoc extends lit_element_s {
       setTimeout(async () => {
         let isValidElementId = false;
         const contentEl = this.shadowRoot.getElementById(elementId);
-        console.log('111111', elementId, contentEl); // eslint-disable-line no-console
 
         if (contentEl) {
           isValidElementId = true;
-          contentEl.scrollIntoView({
-            behavior: 'auto',
+          console.log('scrollTo', elementId); // eslint-disable-line no-console
+
+          this.shadowRoot.querySelector('.operations-root').scrollIntoView({
+            behavior: 'smooth',
             block: 'start'
-          });
+          }); // contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         } else {
           isValidElementId = false;
         }
@@ -67742,7 +67766,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("20c31a6edf42897de19b")
+/******/ 		__webpack_require__.h = () => ("0e1ec4dadbf777a9ef05")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

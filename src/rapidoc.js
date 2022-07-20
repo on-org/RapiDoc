@@ -206,6 +206,28 @@ export default class RapiDoc extends LitElement {
           align-items: center;
       }
       
+      .head-title {
+          background-color: var(--header-bg);
+          color: var(--header-fg);
+          padding:8px 4px 8px 4px;
+          min-height:48px;
+          z-index: 999999;
+          display: flex;
+          grid-column-gap: 1rem;
+          column-gap: 1rem;
+        }
+      @media (min-width: 768px) {
+       .head-title {
+          position: absolute;
+          width: calc(100% - 15.25rem);
+        }
+      }
+      @media (min-width: 1024px) {
+        .head-title {
+          position: absolute;
+          width: calc(100% - 17.25rem);
+        }
+      }
       @media (min-width: 1324px) {
         .doc-introduction-content-block {
           display: grid;
@@ -269,8 +291,7 @@ export default class RapiDoc extends LitElement {
             top: 10px;
         }
       }
-      
-      
+    
       // .main-content-inner--focused-mode {
       //   padding-top: 67px;
       // }
@@ -298,7 +319,7 @@ export default class RapiDoc extends LitElement {
       .section-gap,
       .section-gap--focused-mode,
       .section-gap--read-mode { 
-        padding: 0px 4px; 
+        padding: 70px 4px 0px 4px; 
       }
       .section-tag-header {
         position:relative;
@@ -466,10 +487,10 @@ export default class RapiDoc extends LitElement {
           padding: 0 0 0 24px; 
         }
         .section-gap--focused-mode {
-          padding: 24px 8px; 
+          padding: 70px 8px 24px 8px; 
         }
         .section-gap--read-mode { 
-          padding: 24px 8px; 
+          padding: 70px 8px 24px 8px; 
         }
         .endpoint-body {
           position: relative;
@@ -483,10 +504,10 @@ export default class RapiDoc extends LitElement {
           display:flex;
         }
         .section-gap--focused-mode { 
-          padding: 12px 10px 12px 10px; 
+          padding: 70px 10px 12px 10px; 
         }
         .section-gap--read-mode { 
-          padding: 24px 80px 12px 80px; 
+          padding: 70px 80px 12px 80px; 
         }
       }`,
       CustomStyles,
@@ -1016,7 +1037,9 @@ export default class RapiDoc extends LitElement {
         const contentEl = this.shadowRoot.getElementById(elementId);
         if (contentEl) {
           isValidElementId = true;
-          contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+          console.log('scrollTo', elementId); // eslint-disable-line no-console
+          this.shadowRoot.querySelector('.operations-root').scrollIntoView({ behavior: 'smooth', block: 'start' });
+          // contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
         } else {
           isValidElementId = false;
         }

@@ -84,12 +84,12 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
 
       <!-- Main Content -->
       <main class="main-content regular-font" part="section-main-content">
-        ${headTemplate.call(this)}
         
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode" @click="${() => {
           this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
         }}">
+          
           ${this.loading === true
             ? html`<div class="loader"></div>`
             : html`
@@ -97,6 +97,8 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
                 ? html`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>`
                 : html`
                   <div class="operations-root" @click="${(e) => { this.handleHref(e); }}">
+                    ${headTemplate.call(this)}
+                    
                   ${this.renderStyle === 'focused'
                     ? html`${focusedEndpointTemplate.call(this)}`
                     : html`
