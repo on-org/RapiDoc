@@ -37,17 +37,6 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 /* eslint-disable indent */
 export default function navbarTemplate() {
-  let selectedLang = this.attributes['spec-lang']?.value ?? null;
-  let langs = this.attributes['spec-langs']?.value ?? null;
-  if (langs && typeof langs === 'string') {
-    langs = window[langs];
-  }
-  let selectedName = this.attributes['spec-name']?.value ?? null;
-  let names = this.attributes['spec-names']?.value ?? null;
-  if (names && typeof names === 'string') {
-    names = window[names];
-  }
-
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return html`
       <nav class='nav-bar' part="section-navbar">
@@ -58,62 +47,6 @@ export default function navbarTemplate() {
   return html`
   <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
-    ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
-      ? ''
-      : html`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
-          ${this.allowSearch === 'false'
-            ? ''
-            : html`
-              <div style="display:flex; flex:1; line-height:22px;">
-                <input id="nav-bar-search" 
-                  part = "textbox textbox-nav-filter"
-                  style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
-                  type = "text"
-                  placeholder = "Filter" 
-                  @change = "${this.onSearchChange}"  
-                  spellcheck = "false" 
-                >
-                <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
-              </div>  
-              ${this.matchPaths
-                ? html`
-                  <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
-                    CLEAR
-                  </button>`
-                : ''
-              }
-            `
-          }
-          ${this.allowAdvancedSearch === 'false' || this.matchPaths
-            ? ''
-            : html`
-              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
-                SEARCH
-              </button>
-            `
-          }
-        </div>
-      `
-    }
-    ${html`<nav class='nav-lang' part="section-lang-scroll">
-      ${(!langs || !names)
-    ? ''
-    : html`
-      <select class="textbox" @change="${(e) => {
-        selectedLang = e.target.value;
-        window.selectedLang(selectedLang, selectedName);
-      }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
-        ${Object.keys(langs).map((lang) => html`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
-      </select>
-      <select @change="${(e) => {
-        selectedName = e.target.value;
-        window.selectedLang(selectedLang, selectedName);
-      }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
-        ${Object.keys(names).map((name) => html`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
-      </select>
-      `}
-        `}
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''

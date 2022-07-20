@@ -5908,7 +5908,7 @@ function validateKeyword(definition, throwError) {
 
 /***/ }),
 
-/***/ 3718:
+/***/ 8875:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -39794,21 +39794,7 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 
 function navbarTemplate() {
-  var _this$attributes$spec, _this$attributes$spec2, _this$attributes$spec3, _this$attributes$spec4, _this$attributes$spec5, _this$attributes$spec6, _this$attributes$spec7, _this$attributes$spec8, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
-
-  let selectedLang = (_this$attributes$spec = (_this$attributes$spec2 = this.attributes['spec-lang']) === null || _this$attributes$spec2 === void 0 ? void 0 : _this$attributes$spec2.value) !== null && _this$attributes$spec !== void 0 ? _this$attributes$spec : null;
-  let langs = (_this$attributes$spec3 = (_this$attributes$spec4 = this.attributes['spec-langs']) === null || _this$attributes$spec4 === void 0 ? void 0 : _this$attributes$spec4.value) !== null && _this$attributes$spec3 !== void 0 ? _this$attributes$spec3 : null;
-
-  if (langs && typeof langs === 'string') {
-    langs = window[langs];
-  }
-
-  let selectedName = (_this$attributes$spec5 = (_this$attributes$spec6 = this.attributes['spec-name']) === null || _this$attributes$spec6 === void 0 ? void 0 : _this$attributes$spec6.value) !== null && _this$attributes$spec5 !== void 0 ? _this$attributes$spec5 : null;
-  let names = (_this$attributes$spec7 = (_this$attributes$spec8 = this.attributes['spec-names']) === null || _this$attributes$spec8 === void 0 ? void 0 : _this$attributes$spec8.value) !== null && _this$attributes$spec7 !== void 0 ? _this$attributes$spec7 : null;
-
-  if (names && typeof names === 'string') {
-    names = window[names];
-  }
+  var _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
 
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return $`
@@ -39821,48 +39807,6 @@ function navbarTemplate() {
   return $`
   <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
-    ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
-          ${this.allowSearch === 'false' ? '' : $`
-              <div style="display:flex; flex:1; line-height:22px;">
-                <input id="nav-bar-search" 
-                  part = "textbox textbox-nav-filter"
-                  style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
-                  type = "text"
-                  placeholder = "Filter" 
-                  @change = "${this.onSearchChange}"  
-                  spellcheck = "false" 
-                >
-                <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
-              </div>  
-              ${this.matchPaths ? $`
-                  <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
-                    CLEAR
-                  </button>` : ''}
-            `}
-          ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : $`
-              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
-                SEARCH
-              </button>
-            `}
-        </div>
-      `}
-    ${$`<nav class='nav-lang' part="section-lang-scroll">
-      ${!langs || !names ? '' : $`
-      <select class="textbox" @change="${e => {
-    selectedLang = e.target.value;
-    window.selectedLang(selectedLang, selectedName);
-  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
-        ${Object.keys(langs).map(lang => $`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
-      </select>
-      <select @change="${e => {
-    selectedName = e.target.value;
-    window.selectedLang(selectedLang, selectedName);
-  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
-        ${Object.keys(names).map(name => $`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
-      </select>
-      `}
-        `}
     ${$`<nav class='nav-scroll' part="section-navbar-scroll">
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
@@ -40385,6 +40329,83 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
           </div>
         `}
   `)}`;
+}
+/* eslint-enable indent */
+;// CONCATENATED MODULE: ./src/templates/head-template.js
+
+/* eslint-disable indent */
+
+function headTemplate() {
+  var _this$attributes$spec, _this$attributes$spec2, _this$attributes$spec3, _this$attributes$spec4, _this$attributes$spec5, _this$attributes$spec6, _this$attributes$spec7, _this$attributes$spec8;
+
+  let selectedLang = (_this$attributes$spec = (_this$attributes$spec2 = this.attributes['spec-lang']) === null || _this$attributes$spec2 === void 0 ? void 0 : _this$attributes$spec2.value) !== null && _this$attributes$spec !== void 0 ? _this$attributes$spec : null;
+  let langs = (_this$attributes$spec3 = (_this$attributes$spec4 = this.attributes['spec-langs']) === null || _this$attributes$spec4 === void 0 ? void 0 : _this$attributes$spec4.value) !== null && _this$attributes$spec3 !== void 0 ? _this$attributes$spec3 : null;
+
+  if (langs && typeof langs === 'string') {
+    langs = window[langs];
+  }
+
+  let selectedName = (_this$attributes$spec5 = (_this$attributes$spec6 = this.attributes['spec-name']) === null || _this$attributes$spec6 === void 0 ? void 0 : _this$attributes$spec6.value) !== null && _this$attributes$spec5 !== void 0 ? _this$attributes$spec5 : null;
+  let names = (_this$attributes$spec7 = (_this$attributes$spec8 = this.attributes['spec-names']) === null || _this$attributes$spec8 === void 0 ? void 0 : _this$attributes$spec8.value) !== null && _this$attributes$spec7 !== void 0 ? _this$attributes$spec7 : null;
+
+  if (names && typeof names === 'string') {
+    names = window[names];
+  }
+
+  return $`
+    <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;position: fixed;z-index: 999999;">
+      <slot name="nav-logo" class="logo"></slot>
+      ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
+          <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+            ${this.allowSearch === 'false' ? '' : $`
+                <div style="display:flex; flex:1; line-height:22px;">
+                  <input id="nav-bar-search" 
+                    part = "textbox textbox-nav-filter"
+                    style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                    type = "text"
+                    placeholder = "Filter" 
+                    @change = "${this.onSearchChange}"  
+                    spellcheck = "false" 
+                  >
+                  <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+                </div>  
+                ${this.matchPaths ? $`
+                    <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
+                      CLEAR
+                    </button>` : ''}
+              `}
+            ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : $`
+                <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
+                  SEARCH
+                </button>
+              `}
+          </div>
+        `}
+  
+      ${$`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+        <nav class='nav-lang' part="section-lang-scroll">
+        ${!langs || !names ? '' : $`
+          <select class="textbox" @change="${e => {
+    selectedLang = e.target.value;
+    window.selectedLang(selectedLang, selectedName);
+  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+            ${Object.keys(langs).map(lang => $`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
+          </select>
+        </nav></div>`}
+      `}
+
+      ${$`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+        <nav class='nav-lang' part="section-lang-scroll">
+        ${!langs || !names ? '' : $`
+          <select @change="${e => {
+    selectedName = e.target.value;
+    window.selectedLang(selectedLang, selectedName);
+  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+            ${Object.keys(names).map(name => $`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
+          </select>
+        </nav></div>`}
+      `}
+    </header>`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/logo-template.js
@@ -41043,6 +41064,7 @@ function setTheme(baseTheme, theme = {}) {
 
 
 
+
 function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
@@ -41114,6 +41136,8 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
       <!-- Main Content -->
       <main class="main-content regular-font" part="section-main-content">
+        ${headTemplate.call(this)}
+        
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode">
           ${this.loading === true ? $`<div class="loader"></div>` : $`
@@ -41529,8 +41553,11 @@ class RapiDoc extends lit_element_s {
         scrollbar-width: thin;
         scrollbar-color: var(--border-color) transparent;
       }
-
+      .main-content-inner--read-mode {
+        padding-top: 67px;
+      }
       .main-content-inner--view-mode {
+        padding-top: 67px;
         padding: 0 8px;
       }
       .main-content::-webkit-scrollbar {
@@ -67599,7 +67626,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("12788bc134b01f4a7def")
+/******/ 		__webpack_require__.h = () => ("2a659709ebff661ff9f6")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -68593,7 +68620,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(3718);
+/******/ 	var __webpack_exports__ = __webpack_require__(8875);
 /******/ 	
 /******/ })()
 ;

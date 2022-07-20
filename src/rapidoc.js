@@ -194,8 +194,11 @@ export default class RapiDoc extends LitElement {
         scrollbar-width: thin;
         scrollbar-color: var(--border-color) transparent;
       }
-
+      .main-content-inner--read-mode {
+        padding-top: 67px;
+      }
       .main-content-inner--view-mode {
+        padding-top: 67px;
         padding: 0 8px;
       }
       .main-content::-webkit-scrollbar {
