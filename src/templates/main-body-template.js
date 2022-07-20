@@ -87,7 +87,9 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
         ${headTemplate.call(this)}
         
         <slot></slot>
-        <div class="main-content-inner--${this.renderStyle}-mode">
+        <div class="main-content-inner--${this.renderStyle}-mode" @click="${() => {
+          this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
+        }}">
           ${this.loading === true
             ? html`<div class="loader"></div>`
             : html`

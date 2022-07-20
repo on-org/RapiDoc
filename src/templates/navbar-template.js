@@ -44,9 +44,13 @@ export default function navbarTemplate() {
       </nav>
     `;
   }
+
   return html`
-  <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
+  <nav id="nav" class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
+    <button class="toggle-menu toggle-menu-mm" @click="${() => {
+      this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
+    }}">Show Menu</button>
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''

@@ -15,6 +15,18 @@ export default css`
   flex-wrap:nowrap;
   word-break:break-word;
 }
+
+.mobile-show {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    z-index: 10000;
+    overflow-y: auto;
+    border: 2px solid black;
+}
+
 ::slotted([slot=nav-logo]){
   padding:16px 16px 0 16px;
 }

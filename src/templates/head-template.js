@@ -14,19 +14,22 @@ export default function headTemplate() {
   }
 
   return html`
-    <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;position: fixed;z-index: 999999;">
+    <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;z-index: 999999;display: flex;grid-column-gap: 1rem;column-gap: 1rem;">
+      <button class="toggle-menu" @click="${() => {
+        this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
+      }}">Show Menu</button>
       <slot name="nav-logo" class="logo"></slot>
       ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
         ? ''
         : html`
-          <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+          <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; flex-grow: 5; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
             ${this.allowSearch === 'false'
           ? ''
           : html`
                 <div style="display:flex; flex:1; line-height:22px;">
                   <input id="nav-bar-search" 
                     part = "textbox textbox-nav-filter"
-                    style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
+                    style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color);" 
                     type = "text"
                     placeholder = "Filter" 
                     @change = "${this.onSearchChange}"  
@@ -36,9 +39,9 @@ export default function headTemplate() {
                 </div>  
                 ${this.matchPaths
             ? html`
-                    <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
-                      CLEAR
-                    </button>`
+              <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
+                CLEAR
+              </button>`
             : ''
           }
               `
@@ -54,9 +57,10 @@ export default function headTemplate() {
           </div>
         `
       }
-  
-      ${html`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
-        <nav class='nav-lang' part="section-lang-scroll">
+      
+      ${html`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; flex-grow: 1;"></div>`}
+      ${html`<div style="display:flex; flex-direction:row; justify-content: end; align-items:stretch; padding:8px 0 12px 0; flex-grow: 3; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+        <nav class='nav-lang' part="section-lang-scroll" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch;">
         ${(!langs || !names)
         ? ''
         : html`
@@ -66,11 +70,9 @@ export default function headTemplate() {
           }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
             ${Object.keys(langs).map((lang) => html`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
           </select>
-        </nav></div>`}
-      `}
-
-      ${html`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
-        <nav class='nav-lang' part="section-lang-scroll">
+          </div>`}
+        </nav>
+        <nav class='nav-lang' part="section-lang-scroll" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch;">
         ${(!langs || !names)
         ? ''
         : html`
@@ -79,9 +81,10 @@ export default function headTemplate() {
             window.selectedLang(selectedLang, selectedName);
           }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
             ${Object.keys(names).map((name) => html`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
-          </select>
-        </nav></div>`}
-      `}
+          </select>`}
+        </nav>
+      </div>`}
+      
     </header>`;
   }
 /* eslint-enable indent */

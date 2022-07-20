@@ -194,11 +194,91 @@ export default class RapiDoc extends LitElement {
         scrollbar-width: thin;
         scrollbar-color: var(--border-color) transparent;
       }
-      .main-content-inner--read-mode {
-        padding-top: 67px;
+      
+      .doc-introduction {
+        position: relative;
+        margin: 20px 20px;
       }
+      
+      .doc-introduction-title-block {
+          grid-column: span 2;
+          display: flex;
+          align-items: center;
+      }
+      
+      @media (min-width: 1324px) {
+        .doc-introduction-content-block {
+          display: grid;
+          grid-column-gap: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+      }
+      
+      
+      .doc-introduction-left-block {
+          margin: 20px 0;
+      }
+      
+      .doc-introduction-right-block {
+          overflow: hidden;
+          position: sticky;
+          top: 20px;
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 0;
+      }
+      
+      .toggle-menu, .toggle-menu-mm {
+        display: none;
+      }
+      @media (max-width: 767px) {
+        .toggle-menu {
+            background: 0;
+            border: 0;
+            display: block;
+            width: 30px;
+            height: 25px;
+            position: relative;
+            padding-right: 10px;
+            text-indent: -10000px;
+            color: #989898;
+          }
+          
+          .toggle-menu::before, .toggle-menu::after {
+            content: "";
+            display: block;
+            border-top: 2px solid;
+            border-radius: 2px;
+            width: 100%;
+            height: 2px;
+            position: absolute;
+            transition: .25s ease-out transform;
+            top: 2px;
+          }
+          
+          .toggle-menu::after {
+              top: auto;
+              top: initial;
+              bottom: 2px;
+          }
+          
+          .toggle-menu-mm {
+            display: block;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+      }
+      
+      
+      // .main-content-inner--focused-mode {
+      //   padding-top: 67px;
+      // }
+      // .main-content-inner--read-mode {
+      //   padding-top: 67px;
+      // }
       .main-content-inner--view-mode {
-        padding-top: 67px;
+        // padding-top: 67px;
         padding: 0 8px;
       }
       .main-content::-webkit-scrollbar {
@@ -373,7 +453,7 @@ export default class RapiDoc extends LitElement {
 
       @media only screen and (min-width: 768px) {
         .nav-bar {
-          width: 260px;
+          width: 15.25rem;
           display:flex;
         }
         .only-large-screen{
@@ -399,11 +479,11 @@ export default class RapiDoc extends LitElement {
 
       @media only screen and (min-width: 1024px) {
         .nav-bar {
-          width: ${unsafeCSS(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
+          width: ${unsafeCSS(this.fontSize === 'default' ? '15.25rem' : this.fontSize === 'large' ? '16.25rem' : '17.25rem')};
           display:flex;
         }
         .section-gap--focused-mode { 
-          padding: 12px 80px 12px 80px; 
+          padding: 12px 10px 12px 10px; 
         }
         .section-gap--read-mode { 
           padding: 24px 80px 12px 80px; 
@@ -914,6 +994,7 @@ export default class RapiDoc extends LitElement {
         requestEl.beforerNavigationFocusedMode();
       }
     }
+    this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
     this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
@@ -930,48 +1011,50 @@ export default class RapiDoc extends LitElement {
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
     } else {
-      let isValidElementId = false;
-      const contentEl = this.shadowRoot.getElementById(elementId);
-      if (contentEl) {
-        isValidElementId = true;
-        contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
-      } else {
-        isValidElementId = false;
-      }
-      if (isValidElementId) {
-        // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
-        if (this.renderStyle === 'focused') {
-          const requestEl = this.shadowRoot.querySelector('api-request');
-          if (requestEl) {
-            requestEl.afterNavigationFocusedMode();
+      setTimeout(async () => {
+        let isValidElementId = false;
+        const contentEl = this.shadowRoot.getElementById(elementId);
+        if (contentEl) {
+          isValidElementId = true;
+          contentEl.scrollIntoView({ behavior: 'auto', block: 'start' });
+        } else {
+          isValidElementId = false;
+        }
+        if (isValidElementId) {
+          // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
+          if (this.renderStyle === 'focused') {
+            const requestEl = this.shadowRoot.querySelector('api-request');
+            if (requestEl) {
+              requestEl.afterNavigationFocusedMode();
+            }
+            const responseEl = this.shadowRoot.querySelector('api-response');
+            if (responseEl) {
+              responseEl.resetSelection();
+            }
           }
-          const responseEl = this.shadowRoot.querySelector('api-response');
-          if (responseEl) {
-            responseEl.resetSelection();
+
+          // Update Location Hash
+          if (this.updateRoute === 'true') {
+            window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
+          }
+
+          // Update NavBar View and Styles
+          const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
+
+          if (newNavEl) {
+            if (scrollNavItemToView) {
+              newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
+            }
+            await sleep(0);
+            const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
+            if (oldNavEl) {
+              oldNavEl.classList.remove('active');
+            }
+            newNavEl.classList.add('active'); // must add the class after scrolling
+            // this.requestUpdate();
           }
         }
-
-        // Update Location Hash
-        if (this.updateRoute === 'true') {
-          window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
-        }
-
-        // Update NavBar View and Styles
-        const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
-
-        if (newNavEl) {
-          if (scrollNavItemToView) {
-            newNavEl.scrollIntoView({ behavior: 'auto', block: 'center' });
-          }
-          await sleep(0);
-          const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
-          if (oldNavEl) {
-            oldNavEl.classList.remove('active');
-          }
-          newNavEl.classList.add('active'); // must add the class after scrolling
-          // this.requestUpdate();
-        }
-      }
+      }, 100);
     }
   }
 

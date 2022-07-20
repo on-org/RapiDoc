@@ -198,7 +198,6 @@ export default class ApiRequest extends LitElement {
   }
 
   render() {
-    console.log(1111, this.resolved_spec); // eslint-disable-line
     return html`
     <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 

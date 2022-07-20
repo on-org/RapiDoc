@@ -5908,7 +5908,7 @@ function validateKeyword(definition, throwError) {
 
 /***/ }),
 
-/***/ 3718:
+/***/ 8875:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -9832,6 +9832,18 @@ api-response.view-mode {
   flex-wrap:nowrap;
   word-break:break-word;
 }
+
+.mobile-show {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 300px;
+    z-index: 10000;
+    overflow-y: auto;
+    border: 2px solid black;
+}
+
 ::slotted([slot=nav-logo]){
   padding:16px 16px 0 16px;
 }
@@ -34297,7 +34309,7 @@ function securitySchemeTemplate() {
   }}>CLEAR ALL API KEYS</button>` : $`<div class="red-text">No API key applied</div>`}
     </div>
     ${this.resolvedSpec.securitySchemes && this.resolvedSpec.securitySchemes.length > 0 ? $`
-        <table id="auth-table" class='m-table padded-12' style="width:100%;">
+        <table role="presentation" id="auth-table" class='m-table padded-12' style="width:100%;">
           ${this.resolvedSpec.securitySchemes.map(v => $`
             <tr id="security-scheme-${v.securitySchemeId}" class="${v.type.toLowerCase()}">
               <td style="max-width:500px; overflow-wrap: break-word;">
@@ -37238,8 +37250,6 @@ class ApiRequest extends lit_element_s {
   }
 
   render() {
-    console.log(1111, this.resolved_spec); // eslint-disable-line
-
     return $`
     <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
@@ -37565,7 +37575,7 @@ class ApiRequest extends lit_element_s {
     return $`
     <div class="table-title top-gap">${title}</div>
     <div style="display:block; overflow-x:auto; max-width:100%;">
-      <table class="m-table" style="width:100%; word-break:break-word;">
+      <table role="presentation" class="m-table" style="width:100%; word-break:break-word;">
         ${tableRows}
       </table>
     </div>`;
@@ -37973,7 +37983,7 @@ class ApiRequest extends lit_element_s {
       }
 
       return $`
-        <table style="width:100%;" class="m-table">
+        <table role="presentation" style="width:100%;" class="m-table">
           ${formDataTableRows}
         </table>
       `;
@@ -39225,7 +39235,7 @@ class ApiResponse extends lit_element_s {
   responseHeaderListTemplate(respHeaders) {
     return $`
       <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
-      <table style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
+      <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
         ${respHeaders.map(v => $`
           <tr>
             <td style="padding:8px; vertical-align: baseline; min-width:120px; border-top: 1px solid var(--light-border-color); text-overflow: ellipsis;">
@@ -39247,7 +39257,7 @@ class ApiResponse extends lit_element_s {
 
   mimeTypeDropdownTemplate(mimeTypes) {
     return $`
-      <select @change="${e => {
+      <select aria-label='mime types' @change="${e => {
       this.selectedMimeType = e.target.value;
     }}" style='margin-bottom: -1px; z-index:1'>
         ${mimeTypes.map(mimeType => $`<option value='${mimeType}' ?selected = '${mimeType === this.selectedMimeType}'> ${mimeType} </option>`)}
@@ -39285,7 +39295,7 @@ class ApiResponse extends lit_element_s {
               <pre class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>${mimeRespDetails.examples[0].exampleValue}</pre>
             `}` : $`
           <span class = 'example-panel ${this.renderStyle === 'read' ? 'border pad-8-16' : 'border-top pad-top-8'}'>
-            <select style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e)}'>
+            <select aria-label='response examples' style="min-width:100px; max-width:100%" @change='${e => this.onSelectExample(e)}'>
               ${mimeRespDetails.examples.map(v => $`<option value="${v.exampleId}" ?selected=${v.exampleId === mimeRespDetails.selectedExample} > 
                 ${v.exampleSummary.length > 80 ? v.exampleId : v.exampleSummary} 
               </option>`)}
@@ -39391,78 +39401,92 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
   }
 
   return $`
-    ${this.renderStyle === 'read' ? $`<div class='divider' part="operation-divider"></div>` : ''}
+    ${this.renderStyle === 'read' ? $`
+    <div class='divider' part="operation-divider"></div>` : ''}
     <div class='expanded-endpoint-body observe-me ${path.method} ${path.deprecated ? 'deprecated' : ''} ' part="section-operation ${path.elementId}" id='${path.elementId}'>
-      ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="upper" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
-      ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED </div>` : ''}
-      ${$`
-        ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
-            <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
-              ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
-            </div>
-            ` : ''}
-        <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
-        ${path.isWebhook ? $`<span part="section-operation-webhook style="color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
-            <div class='mono-font part="section-operation-webhook-method" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'> 
-              <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span> 
-              <span part="label-operation-path">${path.path}</span>
-            </div>
-          `}
-        <slot name="${path.elementId}"></slot>`}
-      ${path.description ? $`<div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
-      ${pathSecurityTemplate.call(this, path.security)}
-      
-      <div class='expanded-req-resp-container'>
-        <api-request
-          class = "${this.renderStyle}-mode"
-          style = "width:100%;"
-          webhook = "${path.isWebhook}"
-          method = "${path.method}"
-          path = "${path.path}"
-          .security = "${path.security}"
-          .parameters = "${path.parameters}"
-          .request_body = "${path.requestBody}"
-          .api_keys = "${nonEmptyApiKeys}"
-          .servers = "${path.servers}"
-          .resolved_spec="${this.resolvedSpec}"
-          server-url = "${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
-          fill-request-fields-with-example = "${this.fillRequestFieldsWithExample}"
-          allow-try = "${this.allowTry}"
-          accept = "${accept}"
-          render-style="${this.renderStyle}" 
-          schema-style = "${this.schemaStyle}"
-          active-schema-tab = "${this.defaultSchemaTab}"
-          schema-expand-level = "${this.schemaExpandLevel}"
-          schema-description-expanded = "${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
-          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-          fetch-credentials = "${this.fetchCredentials}"
-          exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
+      <div class="doc-introduction">
+        <div class="doc-introduction-title-block">
+          ${this.renderStyle === 'focused' && tagName !== 'General ⦂' ? $`<h3 class="upper" style="font-weight:bold" part="section-operation-tag"> ${tagName} </h3>` : ''}
+          ${path.deprecated ? $`<div class="bold-text red-text"> DEPRECATED</div>` : ''}
+        </div>
+        <div class="doc-introduction-content-block">
+          <div class="doc-introduction-left-block">
+            ${$`
+              ${path.xBadges && ((_path$xBadges = path.xBadges) === null || _path$xBadges === void 0 ? void 0 : _path$xBadges.length) > 0 ? $`
+                  <div style="display:flex; flex-wrap:wrap; margin-bottom: -24px; font-size: var(--font-size-small);">
+                    ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
+                  </div>
+                ` : ''}
+              <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+              ${path.isWebhook ? $`<span part="section-operation-webhook style=" color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
+                  <div class='mono-font part="section-operation-webhook-method" regular-font-size' style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'>
+                    <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
+                    <span part="label-operation-path">${path.path}</span>
+                  </div>
+                `}
+              <slot name="${path.elementId}"></slot>`}
+            ${path.description ? $`
+              <div class="m-markdown"> ${unsafe_html_o(marked(path.description))}</div>` : ''}
+            ${pathSecurityTemplate.call(this, path.security)}
+          </div>
+          <div class="doc-introduction-right-block">
+            <div class='expanded-req-resp-container'>
+              <api-request
+                class="${this.renderStyle}-mode"
+                style="width:100%;"
+                webhook="${path.isWebhook}"
+                method="${path.method}"
+                path="${path.path}"
+                .security="${path.security}"
+                .parameters="${path.parameters}"
+                .request_body="${path.requestBody}"
+                .api_keys="${nonEmptyApiKeys}"
+                .servers="${path.servers}"
+                .resolved_spec="${this.resolvedSpec}"
+                server-url="${((_path$servers = path.servers) === null || _path$servers === void 0 ? void 0 : (_path$servers$ = _path$servers[0]) === null || _path$servers$ === void 0 ? void 0 : _path$servers$.url) || this.selectedServer.computedUrl}"
+                fill-request-fields-with-example="${this.fillRequestFieldsWithExample}"
+                allow-try="${this.allowTry}"
+                accept="${accept}"
+                render-style="${this.renderStyle}"
+                schema-style="${this.schemaStyle}"
+                active-schema-tab="${this.defaultSchemaTab}"
+                schema-expand-level="${this.schemaExpandLevel}"
+                schema-description-expanded="${this.schemaDescriptionExpanded}"
+                allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+                schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+                schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+                fetch-credentials="${this.fetchCredentials}"
+                exportparts="btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example, schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-        > </api-request>
+              ></api-request>
 
-        ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
+              ${path.callbacks ? callbackTemplate.call(this, path.callbacks) : ''}
 
-        <api-response
-          class = "${this.renderStyle}-mode"
-          style = "width:100%;"
-          webhook = "${path.isWebhook}"
-          .responses = "${path.responses}"
-          render-style = "${this.renderStyle}"
-          schema-style = "${this.schemaStyle}"
-          active-schema-tab = "${this.defaultSchemaTab}"
-          schema-expand-level = "${this.schemaExpandLevel}"
-          schema-description-expanded = "${this.schemaDescriptionExpanded}"
-          allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}"
-          schema-hide-read-only = "${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
-          schema-hide-write-only = "${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
-          selected-status = "${Object.keys(path.responses || {})[0] || ''}"
-          exportparts = "btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
+              <api-response
+                class="${this.renderStyle}-mode"
+                style="width:100%;"
+                webhook="${path.isWebhook}"
+                .responses="${path.responses}"
+                render-style="${this.renderStyle}"
+                schema-style="${this.schemaStyle}"
+                active-schema-tab="${this.defaultSchemaTab}"
+                schema-expand-level="${this.schemaExpandLevel}"
+                schema-description-expanded="${this.schemaDescriptionExpanded}"
+                allow-schema-description-expand-toggle="${this.allowSchemaDescriptionExpandToggle}"
+                schema-hide-read-only="${this.schemaHideReadOnly === 'never' ? 'false' : path.isWebhook ? 'true' : 'false'}"
+                schema-hide-write-only="${this.schemaHideWriteOnly === 'never' ? 'false' : path.isWebhook ? 'false' : 'true'}"
+                selected-status="${Object.keys(path.responses || {})[0] || ''}"
+                exportparts="btn:btn, btn-response-status:btn-response-status, btn-selected-response-status:btn-selected-response-status, btn-fill:btn-fill, btn-copy:btn-copy,
           schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
-        > </api-response>
+              ></api-response>
+            </div>
+          </div>
+        </div>
+
       </div>
+
+
     </div>
   `;
 }
@@ -39472,24 +39496,24 @@ function expandedEndpointTemplate() {
   }
 
   return $`
-  ${this.resolvedSpec.tags.map(tag => $`
-    <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
-      <div class="title tag" part="section-tag-title label-tag-title">${tag.name}</div>
-      <slot name="${tag.elementId}"></slot>
-      <div class="regular-font-size">
-      ${unsafe_html_o(`
+    ${this.resolvedSpec.tags.map(tag => $`
+      <section id="${tag.elementId}" part="section-tag" class="regular-font section-gap--read-mode observe-me" style="border-top:1px solid var(--primary-color);">
+        <div class="title tag" part="section-tag-title label-tag-title">${tag.name}</div>
+        <slot name="${tag.elementId}"></slot>
+        <div class="regular-font-size">
+          ${unsafe_html_o(`
           <div class="m-markdown regular-font">
           ${marked(tag.description || '', this.infoDescriptionHeadingsInNavBar === 'true' ? {
     renderer: headingRenderer(tag.elementId)
   } : undefined)}
         </div>`)}
-      </div>
-    </section>
-    <section class='regular-font section-gap--read-mode' part="section-operations-in-tag">
-      ${tag.paths.map(path => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
-    </section>
+        </div>
+      </section>
+      <section class='regular-font section-gap--read-mode' part="section-operations-in-tag">
+        ${tag.paths.map(path => expandedEndpointBodyTemplate.call(this, path, 'BBB'))}
+      </section>
     `)}
-`;
+  `;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/components-template.js
@@ -39675,7 +39699,7 @@ function serverVarsTemplate() {
   // const selectedServerObj = this.resolvedSpec.servers.find((v) => (v.url === this.selectedServer));
   return this.selectedServer && this.selectedServer.variables ? $`
     <div class="table-title">SERVER VARIABLES</div>
-    <table class='m-table'>
+    <table class='m-table' role='presentation'>
       ${Object.entries(this.selectedServer.variables).map(kv => $`
         <tr>
           <td style="vertical-align: middle;" >${kv[0]}</td>
@@ -39794,21 +39818,7 @@ function onExpandCollapseAll(e, action = 'expand-all') {
 
 
 function navbarTemplate() {
-  var _this$attributes$spec, _this$attributes$spec2, _this$attributes$spec3, _this$attributes$spec4, _this$attributes$spec5, _this$attributes$spec6, _this$attributes$spec7, _this$attributes$spec8, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
-
-  let selectedLang = (_this$attributes$spec = (_this$attributes$spec2 = this.attributes['spec-lang']) === null || _this$attributes$spec2 === void 0 ? void 0 : _this$attributes$spec2.value) !== null && _this$attributes$spec !== void 0 ? _this$attributes$spec : null;
-  let langs = (_this$attributes$spec3 = (_this$attributes$spec4 = this.attributes['spec-langs']) === null || _this$attributes$spec4 === void 0 ? void 0 : _this$attributes$spec4.value) !== null && _this$attributes$spec3 !== void 0 ? _this$attributes$spec3 : null;
-
-  if (langs && typeof langs === 'string') {
-    langs = window[langs];
-  }
-
-  let selectedName = (_this$attributes$spec5 = (_this$attributes$spec6 = this.attributes['spec-name']) === null || _this$attributes$spec6 === void 0 ? void 0 : _this$attributes$spec6.value) !== null && _this$attributes$spec5 !== void 0 ? _this$attributes$spec5 : null;
-  let names = (_this$attributes$spec7 = (_this$attributes$spec8 = this.attributes['spec-names']) === null || _this$attributes$spec8 === void 0 ? void 0 : _this$attributes$spec8.value) !== null && _this$attributes$spec7 !== void 0 ? _this$attributes$spec7 : null;
-
-  if (names && typeof names === 'string') {
-    names = window[names];
-  }
+  var _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$resolvedSpec$in3, _this$resolvedSpec$in4;
 
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) {
     return $`
@@ -39819,50 +39829,11 @@ function navbarTemplate() {
   }
 
   return $`
-  <nav class='nav-bar ${this.renderStyle}' part="section-navbar">
+  <nav id="nav" class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
-    ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
-        <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
-          ${this.allowSearch === 'false' ? '' : $`
-              <div style="display:flex; flex:1; line-height:22px;">
-                <input id="nav-bar-search" 
-                  part = "textbox textbox-nav-filter"
-                  style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color)" 
-                  type = "text"
-                  placeholder = "Filter" 
-                  @change = "${this.onSearchChange}"  
-                  spellcheck = "false" 
-                >
-                <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
-              </div>  
-              ${this.matchPaths ? $`
-                  <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
-                    CLEAR
-                  </button>` : ''}
-            `}
-          ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : $`
-              <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
-                SEARCH
-              </button>
-            `}
-        </div>
-      `}
-    ${$`<nav class='nav-lang' part="section-lang-scroll">
-      ${!langs || !names ? '' : $`
-      <select class="textbox" @change="${e => {
-    selectedLang = e.target.value;
-    window.selectedLang(selectedLang, selectedName);
-  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
-        ${Object.keys(langs).map(lang => $`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
-      </select>
-      <select @change="${e => {
-    selectedName = e.target.value;
-    window.selectedLang(selectedLang, selectedName);
-  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
-        ${Object.keys(names).map(name => $`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
-      </select>
-      `}
-        `}
+    <button class="toggle-menu toggle-menu-mm" @click="${() => {
+    this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
+  }}">Show Menu</button>
     ${$`<nav class='nav-scroll' part="section-navbar-scroll">
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
@@ -40385,6 +40356,86 @@ function endpointTemplate(showExpandCollapse = true, showTags = true, pathsExpan
           </div>
         `}
   `)}`;
+}
+/* eslint-enable indent */
+;// CONCATENATED MODULE: ./src/templates/head-template.js
+
+/* eslint-disable indent */
+
+function headTemplate() {
+  var _this$attributes$spec, _this$attributes$spec2, _this$attributes$spec3, _this$attributes$spec4, _this$attributes$spec5, _this$attributes$spec6, _this$attributes$spec7, _this$attributes$spec8;
+
+  let selectedLang = (_this$attributes$spec = (_this$attributes$spec2 = this.attributes['spec-lang']) === null || _this$attributes$spec2 === void 0 ? void 0 : _this$attributes$spec2.value) !== null && _this$attributes$spec !== void 0 ? _this$attributes$spec : null;
+  let langs = (_this$attributes$spec3 = (_this$attributes$spec4 = this.attributes['spec-langs']) === null || _this$attributes$spec4 === void 0 ? void 0 : _this$attributes$spec4.value) !== null && _this$attributes$spec3 !== void 0 ? _this$attributes$spec3 : null;
+
+  if (langs && typeof langs === 'string') {
+    langs = window[langs];
+  }
+
+  let selectedName = (_this$attributes$spec5 = (_this$attributes$spec6 = this.attributes['spec-name']) === null || _this$attributes$spec6 === void 0 ? void 0 : _this$attributes$spec6.value) !== null && _this$attributes$spec5 !== void 0 ? _this$attributes$spec5 : null;
+  let names = (_this$attributes$spec7 = (_this$attributes$spec8 = this.attributes['spec-names']) === null || _this$attributes$spec8 === void 0 ? void 0 : _this$attributes$spec8.value) !== null && _this$attributes$spec7 !== void 0 ? _this$attributes$spec7 : null;
+
+  if (names && typeof names === 'string') {
+    names = window[names];
+  }
+
+  return $`
+    <header class="row main-header regular-font" part="section-header" style="padding:8px 4px 8px 4px;min-height:48px;z-index: 999999;display: flex;grid-column-gap: 1rem;column-gap: 1rem;">
+      <button class="toggle-menu" @click="${() => {
+    this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
+  }}">Show Menu</button>
+      <slot name="nav-logo" class="logo"></slot>
+      ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
+          <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; flex-grow: 5; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+            ${this.allowSearch === 'false' ? '' : $`
+                <div style="display:flex; flex:1; line-height:22px;">
+                  <input id="nav-bar-search" 
+                    part = "textbox textbox-nav-filter"
+                    style = "width:100%; padding-right:20px; color:var(--nav-hover-text-color); border-color:var(--nav-accent-color); background-color:var(--nav-hover-bg-color);" 
+                    type = "text"
+                    placeholder = "Filter" 
+                    @change = "${this.onSearchChange}"  
+                    spellcheck = "false" 
+                  >
+                  <div style="margin: 6px 5px 0 -24px; font-size:var(--font-size-regular); cursor:pointer;">&#x21a9;</div>
+                </div>  
+                ${this.matchPaths ? $`
+              <button @click = '${this.onClearSearch}' class="m-btn thin-border" style="margin-left:5px; color:var(--nav-text-color); width:75px; padding:6px 8px;" part="btn btn-outline btn-clear-filter">
+                CLEAR
+              </button>` : ''}
+              `}
+            ${this.allowAdvancedSearch === 'false' || this.matchPaths ? '' : $`
+                <button class="m-btn primary" part="btn btn-fill btn-search" style="margin-left:5px; padding:6px 8px; width:75px" @click="${this.onShowSearchModalClicked}">
+                  SEARCH
+                </button>
+              `}
+          </div>
+        `}
+      
+      ${$`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; flex-grow: 1;"></div>`}
+      ${$`<div style="display:flex; flex-direction:row; justify-content: end; align-items:stretch; padding:8px 0 12px 0; flex-grow: 3; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+        <nav class='nav-lang' part="section-lang-scroll" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch;">
+        ${!langs || !names ? '' : $`
+          <select class="textbox" @change="${e => {
+    selectedLang = e.target.value;
+    window.selectedLang(selectedLang, selectedName);
+  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+            ${Object.keys(langs).map(lang => $`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
+          </select>
+          </div>`}
+        </nav>
+        <nav class='nav-lang' part="section-lang-scroll" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch;">
+        ${!langs || !names ? '' : $`
+          <select @change="${e => {
+    selectedName = e.target.value;
+    window.selectedLang(selectedLang, selectedName);
+  }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+            ${Object.keys(names).map(name => $`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
+          </select>`}
+        </nav>
+      </div>`}
+      
+    </header>`;
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/logo-template.js
@@ -41043,6 +41094,7 @@ function setTheme(baseTheme, theme = {}) {
 
 
 
+
 function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = true, pathsExpanded = false) {
   if (!this.resolvedSpec) {
     return '';
@@ -41114,8 +41166,12 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
       <!-- Main Content -->
       <main class="main-content regular-font" part="section-main-content">
+        ${headTemplate.call(this)}
+        
         <slot></slot>
-        <div class="main-content-inner--${this.renderStyle}-mode">
+        <div class="main-content-inner--${this.renderStyle}-mode" @click="${() => {
+    this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
+  }}">
           ${this.loading === true ? $`<div class="loader"></div>` : $`
               ${this.loadFailed === true ? $`<div style="text-align: center;margin: 16px;"> Unable to load the Spec</div>` : $`
                   <div class="operations-root" @click="${e => {
@@ -41529,8 +41585,91 @@ class RapiDoc extends lit_element_s {
         scrollbar-width: thin;
         scrollbar-color: var(--border-color) transparent;
       }
-
+      
+      .doc-introduction {
+        position: relative;
+        margin: 20px 20px;
+      }
+      
+      .doc-introduction-title-block {
+          grid-column: span 2;
+          display: flex;
+          align-items: center;
+      }
+      
+      @media (min-width: 1324px) {
+        .doc-introduction-content-block {
+          display: grid;
+          grid-column-gap: 20px;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+      }
+      
+      
+      .doc-introduction-left-block {
+          margin: 20px 0;
+      }
+      
+      .doc-introduction-right-block {
+          overflow: hidden;
+          position: sticky;
+          top: 20px;
+          display: flex;
+          flex-direction: column;
+          margin-bottom: 0;
+      }
+      
+      .toggle-menu, .toggle-menu-mm {
+        display: none;
+      }
+      @media (max-width: 767px) {
+        .toggle-menu {
+            background: 0;
+            border: 0;
+            display: block;
+            width: 30px;
+            height: 25px;
+            position: relative;
+            padding-right: 10px;
+            text-indent: -10000px;
+            color: #989898;
+          }
+          
+          .toggle-menu::before, .toggle-menu::after {
+            content: "";
+            display: block;
+            border-top: 2px solid;
+            border-radius: 2px;
+            width: 100%;
+            height: 2px;
+            position: absolute;
+            transition: .25s ease-out transform;
+            top: 2px;
+          }
+          
+          .toggle-menu::after {
+              top: auto;
+              top: initial;
+              bottom: 2px;
+          }
+          
+          .toggle-menu-mm {
+            display: block;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+      }
+      
+      
+      // .main-content-inner--focused-mode {
+      //   padding-top: 67px;
+      // }
+      // .main-content-inner--read-mode {
+      //   padding-top: 67px;
+      // }
       .main-content-inner--view-mode {
+        // padding-top: 67px;
         padding: 0 8px;
       }
       .main-content::-webkit-scrollbar {
@@ -41705,7 +41844,7 @@ class RapiDoc extends lit_element_s {
 
       @media only screen and (min-width: 768px) {
         .nav-bar {
-          width: 260px;
+          width: 15.25rem;
           display:flex;
         }
         .only-large-screen{
@@ -41731,11 +41870,11 @@ class RapiDoc extends lit_element_s {
 
       @media only screen and (min-width: 1024px) {
         .nav-bar {
-          width: ${o(this.fontSize === 'default' ? '300px' : this.fontSize === 'large' ? '315px' : '330px')};
+          width: ${o(this.fontSize === 'default' ? '15.25rem' : this.fontSize === 'large' ? '16.25rem' : '17.25rem')};
           display:flex;
         }
         .section-gap--focused-mode { 
-          padding: 12px 80px 12px 80px; 
+          padding: 12px 10px 12px 10px; 
         }
         .section-gap--read-mode { 
           padding: 24px 80px 12px 80px; 
@@ -42413,6 +42552,7 @@ class RapiDoc extends lit_element_s {
       }
     }
 
+    this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
     this.scrollTo(navEl.dataset.contentId, true, scrollNavItemToView);
     setTimeout(() => {
       this.isIntersectionObserverActive = true;
@@ -42430,62 +42570,65 @@ class RapiDoc extends lit_element_s {
     if (this.renderStyle === 'view') {
       this.expandAndGotoOperation(elementId, expandPath, true);
     } else {
-      let isValidElementId = false;
-      const contentEl = this.shadowRoot.getElementById(elementId);
+      setTimeout(async () => {
+        let isValidElementId = false;
+        const contentEl = this.shadowRoot.getElementById(elementId);
+        console.log('111111', elementId, contentEl); // eslint-disable-line no-console
 
-      if (contentEl) {
-        isValidElementId = true;
-        contentEl.scrollIntoView({
-          behavior: 'auto',
-          block: 'start'
-        });
-      } else {
-        isValidElementId = false;
-      }
-
-      if (isValidElementId) {
-        // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
-        if (this.renderStyle === 'focused') {
-          const requestEl = this.shadowRoot.querySelector('api-request');
-
-          if (requestEl) {
-            requestEl.afterNavigationFocusedMode();
-          }
-
-          const responseEl = this.shadowRoot.querySelector('api-response');
-
-          if (responseEl) {
-            responseEl.resetSelection();
-          }
-        } // Update Location Hash
-
-
-        if (this.updateRoute === 'true') {
-          window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
-        } // Update NavBar View and Styles
-
-
-        const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
-
-        if (newNavEl) {
-          if (scrollNavItemToView) {
-            newNavEl.scrollIntoView({
-              behavior: 'auto',
-              block: 'center'
-            });
-          }
-
-          await sleep(0);
-          const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
-
-          if (oldNavEl) {
-            oldNavEl.classList.remove('active');
-          }
-
-          newNavEl.classList.add('active'); // must add the class after scrolling
-          // this.requestUpdate();
+        if (contentEl) {
+          isValidElementId = true;
+          contentEl.scrollIntoView({
+            behavior: 'auto',
+            block: 'start'
+          });
+        } else {
+          isValidElementId = false;
         }
-      }
+
+        if (isValidElementId) {
+          // for focused style it is important to reset request-body-selection and response selection which maintains the state for in case of multiple req-body or multiple response mime-type
+          if (this.renderStyle === 'focused') {
+            const requestEl = this.shadowRoot.querySelector('api-request');
+
+            if (requestEl) {
+              requestEl.afterNavigationFocusedMode();
+            }
+
+            const responseEl = this.shadowRoot.querySelector('api-response');
+
+            if (responseEl) {
+              responseEl.resetSelection();
+            }
+          } // Update Location Hash
+
+
+          if (this.updateRoute === 'true') {
+            window.history.replaceState(null, null, `${this.routePrefix || '#'}${elementId}`);
+          } // Update NavBar View and Styles
+
+
+          const newNavEl = this.shadowRoot.getElementById(`link-${elementId}`);
+
+          if (newNavEl) {
+            if (scrollNavItemToView) {
+              newNavEl.scrollIntoView({
+                behavior: 'auto',
+                block: 'center'
+              });
+            }
+
+            await sleep(0);
+            const oldNavEl = this.shadowRoot.querySelector('.nav-bar-tag.active, .nav-bar-path.active, .nav-bar-info.active, .nav-bar-h1.active, .nav-bar-h2.active, .operations.active');
+
+            if (oldNavEl) {
+              oldNavEl.classList.remove('active');
+            }
+
+            newNavEl.classList.add('active'); // must add the class after scrolling
+            // this.requestUpdate();
+          }
+        }
+      }, 100);
     }
   } // Public Method - to update security-scheme of type http
 
@@ -67599,7 +67742,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("12788bc134b01f4a7def")
+/******/ 		__webpack_require__.h = () => ("20c31a6edf42897de19b")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -68593,7 +68736,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(3718);
+/******/ 	var __webpack_exports__ = __webpack_require__(8875);
 /******/ 	
 /******/ })()
 ;
