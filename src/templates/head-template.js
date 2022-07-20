@@ -83,6 +83,26 @@ export default function headTemplate() {
             ${Object.keys(names).map((name) => html`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
           </select>`}
         </nav>
+
+        ${!this.pdfBtn ? '' : html`
+          <rapi-pdf
+            style = "width: 67px; height:40px; font-size:18px;"
+            spec-url = "${this.specUrl}"
+            button-bg = "#00A2FB"
+            button-label = "PDF"
+            hide-input = "true"
+          > </rapi-pdf>`}
+
+         ${!this.openapiBtn ? '' : html`
+        <button class="m-btn primary" href="" style='font-family: "";font-size: 17px;' @click="${() => {
+          const a = document.createElement('a');
+          a.href = this.specUrl;
+          a.download = this.specUrl.split('/').pop();
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        }}">YAML</button>
+        `}
       </div>`}
       
     </header>`;

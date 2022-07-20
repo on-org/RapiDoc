@@ -133,6 +133,9 @@ export default class RapiDoc extends LitElement {
       matchType: { type: String, attribute: 'match-type' },
 
       // Internal Properties
+      head: { type: Boolean, attribute: 'head' }, // indicates spec is being loaded
+      pdfBtn: { type: Boolean, attribute: 'pdf-btn' }, // indicates spec is being loaded
+      openapiBtn: { type: Boolean, attribute: 'openapi-btn' }, // indicates spec is being loaded
       loading: { type: Boolean }, // indicates spec is being loaded
       focusedElementId: { type: String }, // updating the focusedElementId will automatically render appropriate section in focused mode
       showAdvancedSearchDialog: { type: Boolean },
@@ -215,7 +218,8 @@ export default class RapiDoc extends LitElement {
           display: flex;
           grid-column-gap: 1rem;
           column-gap: 1rem;
-        }
+          top: 0;
+      }
       @media (min-width: 768px) {
        .head-title {
           position: absolute;
@@ -319,7 +323,7 @@ export default class RapiDoc extends LitElement {
       .section-gap,
       .section-gap--focused-mode,
       .section-gap--read-mode { 
-        padding: 70px 4px 0px 4px; 
+        padding: 82px 4px 0px 4px; 
       }
       .section-tag-header {
         position:relative;
@@ -490,7 +494,7 @@ export default class RapiDoc extends LitElement {
           padding: 70px 8px 24px 8px; 
         }
         .section-gap--read-mode { 
-          padding: 70px 8px 24px 8px; 
+          padding: 82px 8px 24px 8px; 
         }
         .endpoint-body {
           position: relative;
@@ -507,7 +511,7 @@ export default class RapiDoc extends LitElement {
           padding: 70px 10px 12px 10px; 
         }
         .section-gap--read-mode { 
-          padding: 70px 80px 12px 80px; 
+          padding: 82px 80px 12px 80px; 
         }
       }`,
       CustomStyles,
@@ -1104,6 +1108,7 @@ export default class RapiDoc extends LitElement {
 
   // Event handler for Advanced Search text-inputs and checkboxes
   onAdvancedSearch(ev, delay) {
+    console.log('onAdvancedSearch', ev); // eslint-disable-line no-console
     const eventTargetEl = ev.target;
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {

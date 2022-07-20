@@ -90,7 +90,8 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
         stringToSearch = path.path;
       }
       if (searchOptions.includes('search-api-descr')) {
-        stringToSearch = `${stringToSearch} ${path.summary || path.description || ''}`;
+        stringToSearch = `${stringToSearch} ${path.summary || ''}`;
+        stringToSearch = `${stringToSearch} ${path.description || ''}`;
       }
       if (searchOptions.includes('search-api-params')) {
         stringToSearch = `${stringToSearch} ${path.parameters?.map((v) => v.name).join(' ') || ''}`;

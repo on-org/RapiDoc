@@ -10105,7 +10105,8 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-descr')) {
-        stringToSearch = `${stringToSearch} ${path.summary || path.description || ''}`;
+        stringToSearch = `${stringToSearch} ${path.summary || ''}`;
+        stringToSearch = `${stringToSearch} ${path.description || ''}`;
       }
 
       if (searchOptions.includes('search-api-params')) {
@@ -34297,7 +34298,7 @@ function securitySchemeTemplate() {
     }
   });
   return $`
-  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
+  <section id='auth' part="section-auth" style="text-align:left; direction:ltr; margin-bottom:24px;" class = 'observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap '}'>
     <div class='sub-title regular-font'> AUTHENTICATION </div>
 
     <div class="small-font-size" style="display:flex; align-items: center; min-height:30px">
@@ -40433,6 +40434,26 @@ function headTemplate() {
             ${Object.keys(names).map(name => $`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
           </select>`}
         </nav>
+
+        ${!this.pdfBtn ? '' : $`
+          <rapi-pdf
+            style = "width: 67px; height:40px; font-size:18px;"
+            spec-url = "${this.specUrl}"
+            button-bg = "#00A2FB"
+            button-label = "PDF"
+            hide-input = "true"
+          > </rapi-pdf>`}
+
+         ${!this.openapiBtn ? '' : $`
+        <button class="m-btn primary" href="" style='font-family: "";font-size: 17px;' @click="${() => {
+    const a = document.createElement('a');
+    a.href = this.specUrl;
+    a.download = this.specUrl.split('/').pop();
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }}">YAML</button>
+        `}
       </div>`}
       
     </header>`;
@@ -41177,7 +41198,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
                   <div class="operations-root" @click="${e => {
     this.handleHref(e);
   }}">
-                    ${headTemplate.call(this)}
+                    ${this.head ? headTemplate.call(this) : ''}
                     
                   ${this.renderStyle === 'focused' ? $`${focusedEndpointTemplate.call(this)}` : $`
                       ${this.showInfo === 'true' ? overviewTemplate.call(this) : ''}
@@ -41512,6 +41533,21 @@ class RapiDoc extends lit_element_s {
         attribute: 'match-type'
       },
       // Internal Properties
+      head: {
+        type: Boolean,
+        attribute: 'head'
+      },
+      // indicates spec is being loaded
+      pdfBtn: {
+        type: Boolean,
+        attribute: 'pdf-btn'
+      },
+      // indicates spec is being loaded
+      openapiBtn: {
+        type: Boolean,
+        attribute: 'openapi-btn'
+      },
+      // indicates spec is being loaded
       loading: {
         type: Boolean
       },
@@ -41608,7 +41644,8 @@ class RapiDoc extends lit_element_s {
           display: flex;
           grid-column-gap: 1rem;
           column-gap: 1rem;
-        }
+          top: 0;
+      }
       @media (min-width: 768px) {
        .head-title {
           position: absolute;
@@ -41712,7 +41749,7 @@ class RapiDoc extends lit_element_s {
       .section-gap,
       .section-gap--focused-mode,
       .section-gap--read-mode { 
-        padding: 70px 4px 0px 4px; 
+        padding: 82px 4px 0px 4px; 
       }
       .section-tag-header {
         position:relative;
@@ -41883,7 +41920,7 @@ class RapiDoc extends lit_element_s {
           padding: 70px 8px 24px 8px; 
         }
         .section-gap--read-mode { 
-          padding: 70px 8px 24px 8px; 
+          padding: 82px 8px 24px 8px; 
         }
         .endpoint-body {
           position: relative;
@@ -41900,7 +41937,7 @@ class RapiDoc extends lit_element_s {
           padding: 70px 10px 12px 10px; 
         }
         .section-gap--read-mode { 
-          padding: 70px 80px 12px 80px; 
+          padding: 82px 80px 12px 80px; 
         }
       }`, custom_styles];
   } // Startup
@@ -42679,6 +42716,8 @@ class RapiDoc extends lit_element_s {
 
 
   onAdvancedSearch(ev, delay) {
+    console.log('onAdvancedSearch', ev); // eslint-disable-line no-console
+
     const eventTargetEl = ev.target;
     clearTimeout(this.timeoutId);
     this.timeoutId = setTimeout(() => {
@@ -67766,7 +67805,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("0e1ec4dadbf777a9ef05")
+/******/ 		__webpack_require__.h = () => ("82c90309cac484679a59")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
