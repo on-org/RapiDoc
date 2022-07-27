@@ -33,6 +33,8 @@ export default class JsonTree extends LitElement {
         line-height: calc(var(--font-size-small) + 6px);
         direction: ltr; 
         text-align: left;
+        max-height: 300px;
+        overflow: auto;
       }
 
       .open-bracket {

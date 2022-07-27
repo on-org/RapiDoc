@@ -192,7 +192,7 @@ export default class CodeSimples extends LitElement {
         }
         .code-panel {
           border-radius: 5px;
-          min-height: 500px;
+          min-height: 300px;
           outline: 2px solid rgba(0,0,0,0);
           outline-offset: 2px;
           overflow: hidden;
