@@ -2,6 +2,7 @@ import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
 import { downloadResource, viewResource } from '~/utils/common-utils';
+import { locale } from '~/locale';
 
 /* eslint-disable indent */
 function headingRenderer() {
@@ -11,13 +12,14 @@ function headingRenderer() {
 }
 
 export default function overviewTemplate() {
+  const lang = locale.getLocale();
   return html`
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${this.resolvedSpec?.info
         ? html`
           <div id="api-title" part="section-overview-title" style="font-size:32px">
-            ${this.resolvedSpec.info.title}
+            ${this.resolvedSpec.info[`x-title-${lang}`] || this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : html`
               <span style = 'font-size:var(--font-size-small);font-weight:bold'>
                 ${this.resolvedSpec.info.version}
@@ -61,11 +63,11 @@ export default function overviewTemplate() {
           </div>
           <slot name="overview"></slot>
           <div id="api-description">
-          ${this.resolvedSpec.info.description
+          ${this.resolvedSpec.info.description || this.resolvedSpec.info[`x-description-${lang}`]
             ? html`${
               unsafeHTML(`
                 <div class="m-markdown regular-font">
-                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
+                ${marked(this.resolvedSpec.info[`x-description-${lang}`] || this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? { renderer: headingRenderer() } : undefined)}
               </div>`)}`
             : ''
           }

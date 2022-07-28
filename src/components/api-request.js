@@ -26,6 +26,7 @@ import '~/components/json-tree';
 import '~/components/schema-tree';
 import '~/components/tag-input';
 import '~/components/code-simples';
+import { locale } from '~/locale';
 
 export default class ApiRequest extends LitElement {
   constructor() {
@@ -86,6 +87,8 @@ export default class ApiRequest extends LitElement {
       activeResponseTab: { type: String }, // internal tracking of response-tab not exposed as a attribute
       selectedRequestBodyType: { type: String, attribute: 'selected-request-body-type' }, // internal tracking of selected request-body type
       selectedRequestBodyExample: { type: String, attribute: 'selected-request-body-example' }, // internal tracking of selected request-body example
+
+      specLang: { type: String, attribute: 'spec-lang' },
     };
   }
 
@@ -201,7 +204,7 @@ export default class ApiRequest extends LitElement {
     return html`
     <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
-        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
+        ${this.callback === 'true' ? locale.i18n('callback_request', 'CALLBACK REQUEST') : locale.i18n('request', 'REQUEST')}
       </div>
       <div>
         ${guard([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
@@ -332,19 +335,21 @@ export default class ApiRequest extends LitElement {
   }
 
   inputParametersTemplate(paramType) {
+    const lang = locale.getLocale();
+
     const filteredParams = this.parameters ? this.parameters.filter((param) => param.in === paramType) : [];
     if (filteredParams.length === 0) {
       return '';
     }
     let title = '';
     if (paramType === 'path') {
-      title = 'PATH PARAMETERS';
+      title = locale.i18n('path_params', 'PATH PARAMETERS');
     } else if (paramType === 'query') {
-      title = 'QUERY-STRING PARAMETERS';
+      title = locale.i18n('query_param', 'QUERY-STRING PARAMETERS');
     } else if (paramType === 'header') {
-      title = 'REQUEST HEADERS';
+      title = locale.i18n('req_headers', 'REQUEST HEADERS');
     } else if (paramType === 'cookie') {
-      title = 'COOKIES';
+      title = locale.i18n('cookie', 'COOKIES');
     }
 
     const tableRows = [];
@@ -479,6 +484,7 @@ export default class ApiRequest extends LitElement {
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
                               schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
+                              spec-Lang = "${this.specLang}"
                               exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example"
@@ -506,8 +512,8 @@ export default class ApiRequest extends LitElement {
           ? html`
             <td colspan="${(this.allowTry === 'true') ? '1' : '2'}">
               <div class="param-constraint">
-                ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                ${paramSchema.default ? html`<span style="font-weight:bold">${locale.i18n('default', 'Default')}: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.pattern ? html`<span style="font-weight:bold">>${locale.i18n('pattern', 'Pattern')}: </span>${paramSchema.pattern}<br/>` : ''}
                 ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                 ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html`
                   ${i > 0 ? '┃' : html`<span style="font-weight:bold">Allowed: </span>`}
@@ -535,7 +541,7 @@ export default class ApiRequest extends LitElement {
       <tr>
         ${this.allowTry === 'true' ? html`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none">
-          <span class="m-markdown-small">${unsafeHTML(marked(param.description || ''))}</span>
+          <span class="m-markdown-small">${unsafeHTML(marked(param[`x-description-${lang}`] || param.description || ''))}</span>
           ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </td>
       </tr>
@@ -750,6 +756,7 @@ export default class ApiRequest extends LitElement {
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly}"
               schema-hide-write-only = "${this.schemaHideWriteOnly}"
+              spec-Lang = "${this.specLang}"
               exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
             > </schema-tree>
           `;
@@ -845,6 +852,7 @@ export default class ApiRequest extends LitElement {
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+            spec-Lang = "${this.specLang}"
           > </schema-tree>
         </div>`
       }
@@ -853,6 +861,7 @@ export default class ApiRequest extends LitElement {
   }
 
   formDataTemplate(schema, mimeType, exampleValue = '') {
+    const lang = locale.getLocale();
     const formDataTableRows = [];
     if (schema.properties) {
       for (const fieldName in schema.properties) {
@@ -936,8 +945,8 @@ export default class ApiRequest extends LitElement {
                 ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern
                   ? html`
                     <div class="param-constraint">
-                      ${paramSchema.default ? html`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                      ${paramSchema.pattern ? html`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                      ${paramSchema.default ? html`<span style="font-weight:bold">${locale.i18n('default', 'Default')}: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.pattern ? html`<span style="font-weight:bold">${locale.i18n('pattern', 'Pattern')}: </span>${paramSchema.pattern}<br/>` : ''}
                       ${paramSchema.constrain ? html`${paramSchema.constrain}<br/>` : ''}
                       ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => html`
                         ${i > 0 ? '┃' : html`<span style="font-weight:bold">Allowed: </span>`}
@@ -972,7 +981,7 @@ export default class ApiRequest extends LitElement {
             <tr>
               <td style="border:none"> </td>
               <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema.description || ''))}</span>
+                <span class="m-markdown-small">${unsafeHTML(marked(fieldSchema[`x-description-${lang}`] || fieldSchema.description || ''))}</span>
                 ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
               </td>
             </tr>
@@ -1021,18 +1030,18 @@ export default class ApiRequest extends LitElement {
     }
     return html`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
+        <div class="response-message ${this.responseStatus}">${locale.i18n('response_status', 'Response Status')}: ${this.responseMessage}</div>
         <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">${locale.i18n('clear_response', 'CLEAR RESPONSE')}</button>
       </div>
       <div class="tab-panel col" style="border-width:0 0 1px 0;">
         <div id="tab_buttons" class="tab-buttons row" @click="${(e) => {
             if (e.target.classList.contains('tab-btn') === false) { return; }
             this.activeResponseTab = e.target.dataset.tab;
         }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
-          <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>
+          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > ${locale.i18n('response', 'RESPONSE')}</button>
+          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > ${locale.i18n('response_head', 'RESPONSE HEADERS')}</button>
+          <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>${locale.i18n('curl', 'CURL')}</button>
         </div>
         ${this.responseIsBlob
           ? html`
@@ -1041,22 +1050,22 @@ export default class ApiRequest extends LitElement {
                 DOWNLOAD
               </button>
               ${this.responseBlobType === 'view'
-                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">VIEW (NEW TAB)</button>`
+                ? html`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${(e) => { viewResource(this.responseBlobUrl, e); }}' part="btn btn-outline">${locale.i18n('view_new_tab', 'VIEW (NEW TAB)')}</button>`
                 : ''
               }
             </div>`
           : html`
             <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
-              <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> Copy </button>
+              <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseText, e); }}' part="btn btn-fill"> ${locale.i18n('copy', 'Copy')} </button>
               <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`
         }
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
-          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> Copy </button>
+          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.responseHeaders, e); }}' part="btn btn-fill"> ${locale.i18n('copy', 'Copy')} </button>
           <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.responseHeaders, Prism.languages.css, 'css'))}</code></pre>
         </div>
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
-          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> Copy </button>
+          <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${(e) => { copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e); }}' part="btn btn-fill"> ${locale.i18n('copy', 'Copy')} </button>
           <pre style="white-space:pre"><code>${unsafeHTML(Prism.highlight(this.curlSyntax.trim().replace(/\\$/, ''), Prism.languages.shell, 'shell'))}</code></pre>
         </div>
       </div>`;
@@ -1078,7 +1087,7 @@ export default class ApiRequest extends LitElement {
         ${this.serverUrl
           ? html`
             <div style="display:flex; align-items:baseline;">
-              <div style="font-weight:bold; padding-right:5px;">API Server</div> 
+              <div style="font-weight:bold; padding-right:5px;">${locale.i18n('api_server', 'API Server')}</div> 
               <span class = "gray-text"> ${this.serverUrl} </span>
             </div>
           `
@@ -1094,7 +1103,7 @@ export default class ApiRequest extends LitElement {
           ${selectedServerHtml}
         </div>
         <div style="display:flex;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
+          <div style="font-weight:bold; padding-right:5px;">${locale.i18n('authentication', 'Authentication')}</div>
           ${this.security?.length > 0
             ? html`
               ${this.api_keys.length > 0
@@ -1104,24 +1113,24 @@ export default class ApiRequest extends LitElement {
                       : `${this.api_keys.length} API keys applied`
                     } 
                   </div>`
-                : html`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`
+                : html`<div class="gray-text">${locale.i18n('required', 'Required  <span style="color:var(--red)">(None Applied)')}</span>`
               }`
-            : html`<span class="gray-text"> Not Required </span>`
+            : html`<span class="gray-text"> ${locale.i18n('not_required', 'Not Required')} </span>`
           }
         </div>
       </div>
       ${
         this.parameters.length > 0 || this.request_body
           ? html`
-            <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
-              FILL EXAMPLE
+            <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="${locale.i18n('file_with', 'Fills with example data (if provided)')}">
+              ${locale.i18n('fill_example', 'FILL EXAMPLE')}
             </button>
             <button class="m-btn thin-border" part="btn btn-outline btn-clear" style="margin-right:5px;" @click="${this.onClearRequestData}">
-              CLEAR
+              ${locale.i18n('clear', 'CLEAR')}
             </button>`
           : ''
       }
-      <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">${locale.i18n('try', 'TRY')}</button>
     </div>
     ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;

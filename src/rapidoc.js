@@ -28,6 +28,7 @@ import ProcessSpec from '~/utils/spec-parser';
 import mainBodyTemplate from '~/templates/main-body-template';
 import { applyApiKey, onClearAllApiKeys } from '~/templates/security-scheme-template';
 import { setApiServer } from '~/templates/server-template';
+import { locale } from '~/locale';
 
 export default class RapiDoc extends LitElement {
   constructor() {
@@ -722,7 +723,7 @@ export default class RapiDoc extends LitElement {
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId.toString().toLowerCase() === rapidocApiKey);
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
               securitySchemeId: rapidocApiKey,
@@ -818,6 +819,9 @@ export default class RapiDoc extends LitElement {
     if (!specUrl) {
       return;
     }
+
+    locale.setLocale(this.specLang);
+
     this.matchPaths = '';
     try {
       this.resolvedSpec = {
@@ -846,6 +850,14 @@ export default class RapiDoc extends LitElement {
       this.loadFailed = true;
       this.resolvedSpec = null;
       console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
+    }
+
+    if (this.apiKeyValue && this.apiKeyValue !== '') {
+      const rapiDocApiKey = this.resolvedSpec.securitySchemes.find((v) => v.securitySchemeId.toString().toLowerCase() === rapidocApiKey);
+      if (rapiDocApiKey) {
+        rapiDocApiKey.value = this.apiKeyValue;
+        rapiDocApiKey.finalKeyValue = this.apiKeyValue;
+      }
     }
   }
 

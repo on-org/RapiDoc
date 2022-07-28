@@ -104,7 +104,7 @@ export default function headTemplate() {
         }}">YAML</button>
         `}
       </div>`}
-      
+      <slot name="head"></slot>
     </header>`;
   }
 /* eslint-enable indent */

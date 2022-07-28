@@ -5908,7 +5908,7 @@ function validateKeyword(definition, throwError) {
 
 /***/ }),
 
-/***/ 8875:
+/***/ 6696:
 /***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
 
 "use strict";
@@ -9890,8 +9890,113 @@ customize their theme. Simply add your css to this file and yarn build.
 /* harmony default export */ const custom_styles = (r`
 
 `);
+;// CONCATENATED MODULE: ./src/locale/index.js
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+const i18n = {
+  en: {
+    api_server: 'API Server',
+    api_servers: 'API Servers',
+    authentication: 'Authentication',
+    webhook: 'WEBHOOK',
+    request: 'REQUEST',
+    callback_request: 'CALLBACK REQUEST',
+    path_params: 'PATH PARAMETERS',
+    query_param: 'QUERY-STRING PARAMETERS',
+    req_headers: 'REQUEST HEADERS',
+    cookie: 'COOKIES',
+    not_required: 'Not Required',
+    required: 'Required  <span style="color:var(--red)">(None Applied)',
+    clear_response: 'CLEAR RESPONSE',
+    response: 'RESPONSE',
+    response_head: 'RESPONSE HEADERS',
+    curl: 'CURL',
+    response_status: 'Response Status',
+    callback_response: 'CALLBACK RESPONSE',
+    view_new_tab: 'VIEW (NEW TAB)',
+    copy: 'Copy',
+    code_simples: 'CODE SAMPLES',
+    request_simple_lang: 'Request Sample Language',
+    try: 'TRY',
+    file_with: 'Fills with example data (if provided)',
+    clear: 'CLEAR',
+    fill_example: 'FILL EXAMPLE',
+    example: 'EXAMPLE',
+    schema: 'SCHEMA',
+    selected: 'SELECTED',
+    multiline_description: 'Multiline description',
+    singleline_description: 'Single line description',
+    default: 'Default',
+    pattern: 'Pattern',
+    constraints: 'Constraints',
+    allowed: 'Allowed'
+  },
+  ru: {
+    api_server: 'API Сервер',
+    api_servers: 'API Сервера',
+    authentication: 'Авторизация',
+    webhook: 'WEBHOOK',
+    request: 'ЗАПРОС',
+    callback_request: 'ЗАПРОС ОБРАТНОГО ВЫЗОВА',
+    path_params: 'ПАРАМЕТРЫ ПУТИ',
+    query_param: 'ПАРАМЕТРЫ СТРОКИ ЗАПРОСА',
+    req_headers: 'ЗАГОЛОВКИ ЗАПРОСА',
+    cookie: 'COOKIES',
+    not_required: 'Не требуется',
+    required: 'Требуется <span style="color:var(--red)">(не применяется)',
+    clear_response: 'ОТЧИЧТИТЬ ОТВЕТ',
+    response: 'ОТВЕТ',
+    response_head: 'ЗАГОЛОВКИ ОТВЕТА',
+    curl: 'CURL',
+    response_status: 'Статус ответа',
+    callback_response: 'ОБРАТНЫЙ ОТВЕТ',
+    view_new_tab: 'ПОСМОТРЕТЬ (НОВАЯ ВКЛАДКА)',
+    copy: 'Скопировать',
+    code_simples: 'ПРИМЕР КОДА',
+    request_simple_lang: 'Пример запроса на языке',
+    try: 'Попробовать',
+    file_with: 'Заполняется примерными данными (если они предоставлены)',
+    clear: 'ОЧИСТИТЬ',
+    fill_example: 'ПРИМЕР ЗАПОЛНЕНИЯ',
+    example: 'ПРИМЕР',
+    schema: 'СХЕМА',
+    selected: 'ВЫБРАНО',
+    multiline_description: 'Многострочное описание',
+    singleline_description: 'Однострочное описание',
+    default: 'По умолчанию',
+    pattern: 'Шаблон',
+    constraints: 'Ограничения',
+    allowed: 'Разрешено'
+  }
+};
+
+class Locale {
+  constructor() {
+    _defineProperty(this, "locale", 'en');
+  }
+
+  setLocale(locale) {
+    this.locale = locale;
+  }
+
+  getLocale() {
+    return this.locale;
+  }
+
+  i18n(key, def = '') {
+    return i18n[this.locale][key] || i18n.en[key] || def;
+  }
+
+}
+
+const locale = new Locale();
+const set = locale.setLocale;
+const get = locale.getLocale;
+
 ;// CONCATENATED MODULE: ./src/utils/common-utils.js
+
 /* For Delayed Event Handler Execution */
+
 function debounce(fn, delay) {
   let timeoutID = null;
   return (...args) => {
@@ -9904,7 +10009,7 @@ function debounce(fn, delay) {
 }
 const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
 
-const rapidocApiKey = '_rapidoc_api_key';
+const rapidocApiKey = 'apikey';
 function sleep(ms) {
   // eslint-disable-next-line no-promise-executor-return
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -9977,6 +10082,7 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
     return;
   }
 
+  const lang = locale.getLocale();
   const pathsMatched = [];
   allSpecTags.forEach(tag => {
     tag.paths.forEach(path => {
@@ -9987,8 +10093,8 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-descr')) {
-        stringToSearch = `${stringToSearch} ${path.summary || ''}`;
-        stringToSearch = `${stringToSearch} ${path.description || ''}`;
+        stringToSearch = `${stringToSearch} ${path[`x-summary-${lang}`] || path.summary || ''}`;
+        stringToSearch = `${stringToSearch} ${path[`x-description-${lang}`] || path.description || ''}`;
       }
 
       if (searchOptions.includes('search-api-params')) {
@@ -10014,7 +10120,7 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-resp-descr')) {
-        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map(v => v.description || '').join(' ')}`;
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map(v => v[`x-description-${lang}`] || v.description || '').join(' ')}`;
       }
 
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
@@ -10022,7 +10128,7 @@ function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
           elementId: path.elementId,
           method: path.method,
           path: path.path,
-          summary: path.summary || path.description || '',
+          summary: path[`x-summary-${lang}`] || path[`x-description-${lang}`] || path.summary || path.description || '',
           deprecated: path.deprecated
         });
       }
@@ -12493,7 +12599,7 @@ var defineProperty$4 = parent$D;
 
 var defineProperty$3 = defineProperty$4;
 
-function _defineProperty(obj, key, value) {
+function openapi_parser_es_defineProperty(obj, key, value) {
   if (key in obj) {
     defineProperty$3(obj, key, {
       value: value,
@@ -12528,7 +12634,7 @@ function _objectSpread2(target) {
 
     var source = null != arguments[i] ? arguments[i] : {};
     i % 2 ? forEach$3(_context = ownKeys$1(Object(source), !0)).call(_context, function (key) {
-      _defineProperty(target, key, source[key]);
+      openapi_parser_es_defineProperty(target, key, source[key]);
     }) : getOwnPropertyDescriptors ? defineProperties(target, getOwnPropertyDescriptors(source)) : forEach$3(_context2 = ownKeys$1(Object(source))).call(_context2, function (key) {
       defineProperty$3(target, key, getOwnPropertyDescriptor$1(source, key));
     });
@@ -20589,7 +20695,7 @@ function constructYamlSet(data) {
   return data !== null ? data : {};
 }
 
-var set = new type('tag:yaml.org,2002:set', {
+var openapi_parser_es_set = new type('tag:yaml.org,2002:set', {
   kind: 'mapping',
   resolve: resolveYamlSet,
   construct: constructYamlSet
@@ -20604,7 +20710,7 @@ var _default = core$1.extend({
     binary,
     omap,
     pairs,
-    set
+    openapi_parser_es_set
   ]
 });
 
@@ -23333,7 +23439,7 @@ var types = {
   map:       map,
   null:      _null,
   pairs:     pairs,
-  set:       set,
+  set:       openapi_parser_es_set,
   timestamp: timestamp,
   bool:      bool,
   int:       openapi_parser_es_int,
@@ -30109,12 +30215,12 @@ var baseGet = _baseGet;
  * _.get(object, 'a.b.c', 'default');
  * // => 'default'
  */
-function get(object, path, defaultValue) {
+function openapi_parser_es_get(object, path, defaultValue) {
   var result = object == null ? undefined : baseGet(object, path);
   return result === undefined ? defaultValue : result;
 }
 
-var get_1 = get;
+var get_1 = openapi_parser_es_get;
 
 function resolveSubtree(_x, _x2) {
   return _resolveSubtree.apply(this, arguments);
@@ -33277,6 +33383,7 @@ var index = {
 
 
 
+
 async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   var _jsonParsedSpec$info, _jsonParsedSpec$compo;
 
@@ -33580,6 +33687,7 @@ function getComponents(openApiSpec) {
 }
 
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
+  const lang = locale.getLocale();
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
 
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags) ? openApiSpec.tags.map(v => ({
@@ -33658,7 +33766,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
           } // Generate a short summary which is broken
 
 
-          let shortSummary = (pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
+          let shortSummary = (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
 
           if (shortSummary.length > 100) {
             [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
@@ -33695,8 +33803,8 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             expanded: false,
             isWebhook,
             expandedAtLeastOnce: false,
-            summary: pathOrHookObj.summary || '',
-            description: pathOrHookObj.description || '',
+            summary: pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj.summary || '',
+            description: pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.description || '',
             shortSummary,
             method: methodName,
             path: pathOrHookName,
@@ -34217,7 +34325,7 @@ function securitySchemeTemplate() {
                     <div style="max-height:28px;">
                       ${v.in !== 'cookie' ? $`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
-                          <button class="m-btn thin-border" style = "margin-left:5px;"
+                          <button class="m-btn thin-border api-key-button" style = "margin-left:5px;"
                             part = "btn btn-outline"
                             @click="${e => {
     onApiKeyChange.call(this, v.securitySchemeId, e);
@@ -34492,12 +34600,15 @@ var dist_default = /*#__PURE__*/__webpack_require__.n(dist);
 }
 `);
 ;// CONCATENATED MODULE: ./src/utils/schema-utils.js
+
 /* Generates an schema object containing type and constraint info */
+
 function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
 
+  const lang = locale.getLocale();
   let dataType = '';
   let constrain = ''; // let examples;
 
@@ -34529,7 +34640,7 @@ function getTypeInfo(schema) {
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
     default: schema.default != null ? `${schema.default}` : '',
-    description: schema.description || '',
+    description: schema[`x-description-${lang}`] || schema.description || '',
     constrain: '',
     allowedValues: '',
     arrayType: '',
@@ -34539,7 +34650,7 @@ function getTypeInfo(schema) {
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}' || info.type === 'any') {
-    info.description = info.description || '';
+    info.description = info[`x-description-${lang}`] || info.description || '';
   } // Set Allowed Values
 
 
@@ -34614,13 +34725,15 @@ function normalizeExamples(examples, dataType = 'string') {
     };
   }
 
+  const lang = locale.getLocale();
+
   if (examples.constructor === Object) {
     const exampleValAndDescr = Object.values(examples);
     const exampleVal = exampleValAndDescr.length > 0 ? typeof exampleValAndDescr[0].value === 'boolean' || typeof exampleValAndDescr[0].value === 'number' ? exampleValAndDescr[0].value.toString() : exampleValAndDescr[0].value : '';
     const exampleList = Object.values(examples).map(v => ({
       value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
       summary: v.summary,
-      description: v.description
+      description: v[`x-description-${lang}`] || v.description
     }));
     return {
       exampleVal,
@@ -34829,12 +34942,14 @@ function addSchemaInfoToExample(schema, obj) {
     return;
   }
 
+  const lang = locale.getLocale();
+
   if (schema.title) {
     obj['::TITLE'] = schema.title;
   }
 
-  if (schema.description) {
-    obj['::DESCRIPTION'] = schema.description;
+  if (schema.description || schema[`x-description-${lang}`]) {
+    obj['::DESCRIPTION'] = schema[`x-description-${lang}`] || schema.description;
   }
 }
 
@@ -35127,13 +35242,16 @@ function schemaToSampleObj(schema, config = {}) {
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
   var _schema$items5;
 
+  const lang = locale.getLocale();
   let markdown = '';
 
   if (schema.title) {
     markdown = `**${schema.title}:** `;
   }
 
-  if (schema.description) {
+  if (schema[`x-description-${lang}`] || null) {
+    markdown = `${markdown} ${schema[`x-description-${lang}`]} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
+  } else if (schema.description) {
     markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
   }
 
@@ -35176,6 +35294,8 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     return;
   }
 
+  const lang = locale.getLocale();
+
   if (schema.allOf) {
     const objWithAllProps = {};
 
@@ -35204,10 +35324,10 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
-    obj['::description'] = schema.description || ''; // 1. First iterate the regular properties
+    obj['::description'] = schema[`x-description-${lang}`] || schema.description || ''; // 1. First iterate the regular properties
 
     if (schema.type === 'object' || schema.properties) {
-      obj['::description'] = schema.description || '';
+      obj['::description'] = schema[`x-description-${lang}`] || schema.description || '';
       obj['::type'] = 'object'; // obj['::deprecated'] = schema.deprecated || false;
 
       for (const key in schema.properties) {
@@ -35294,7 +35414,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
           // If object type iterate all the properties and create an object-type-option
           const objTypeOption = {
             '::title': schema.title || '',
-            '::description': schema.description || '',
+            '::description': schema[`x-description-${lang}`] || schema.description || '',
             '::type': 'object',
             '::deprecated': schema.deprecated || false
           };
@@ -35311,7 +35431,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         } else if (v === 'array') {
           multiTypeOptions[`::OPTION~${i + 1}`] = {
             '::title': schema.title || '',
-            '::description': schema.description || '',
+            '::description': schema[`x-description-${lang}`] || schema.description || '',
             '::type': 'array',
             '::props': schemaInObjectNotation(schema.items, {}, level + 1)
           };
@@ -35379,6 +35499,7 @@ function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 /* Create Example object */
 
 function generateExample(schema, mimeType, examples = '', example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+  const lang = locale.getLocale();
   const finalExamples = []; // First check if examples is provided
 
   if (examples) {
@@ -35412,7 +35533,7 @@ function generateExample(schema, mimeType, examples = '', example = '', includeR
       finalExamples.push({
         exampleId: eg,
         exampleSummary: examples[eg].summary || eg,
-        exampleDescription: examples[eg].description || '',
+        exampleDescription: examples[eg][`x-description-${lang}`] || examples[eg].description || '',
         exampleType: mimeType,
         exampleValue: egContent,
         exampleFormat: egFormat
@@ -35581,6 +35702,7 @@ function getSchemaFromParam(param) {
 
 
 
+
 class JsonTree extends lit_element_s {
   static get properties() {
     return {
@@ -35669,7 +35791,7 @@ class JsonTree extends lit_element_s {
         <div class='toolbar'> 
           <button class="toolbar-btn" part="btn btn-fill btn-copy" @click='${e => {
       copyToClipboard(JSON.stringify(this.data, null, 2), e);
-    }}'> Copy </button>
+    }}'> ${locale.i18n('copy', 'Copy')} </button>
         </div>
         ${this.generateTree(this.data, true)}
       </div>  
@@ -35836,6 +35958,7 @@ customElements.define('json-tree', JsonTree);
 
 
 
+
 class SchemaTree extends lit_element_s {
   static get properties() {
     return {
@@ -35965,7 +36088,7 @@ class SchemaTree extends lit_element_s {
               <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item' @click='${() => {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     }}'> 
-                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+                ${this.schemaDescriptionExpanded === 'true' ? locale.i18n('singleline_description', 'Single line description') : locale.i18n('multiline_description', 'Multiline description')}
               </div>
             ` : ''}
         </div>
@@ -36148,10 +36271,10 @@ class SchemaTree extends lit_element_s {
           ${schemaDescription ? $`<span class="m-markdown-small">
               ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span class="more-content">⤵</span>' : ''}`))}
               </span>` : schemaTitle ? $`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? $`<span class="more-content">⤵</span>` : ''}` : ''}
-          ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
-          ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
-          ${pattern ? $`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('constraints', 'Constraints')}: </span>${constraint}</div>` : ''}
+          ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('default', 'Default')}: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('allowed', 'Allowed')}: </span>${allowedValues}</div>` : ''}
+          ${pattern ? $`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('pattern', 'Pattern')}: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
@@ -36354,6 +36477,7 @@ var reprism_php = __webpack_require__(9431);
 
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -36631,7 +36755,7 @@ class CodeSimples extends lit_element_s {
       };
     });
     return $`<div class="col regular-font request-panel">
-      <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
+      <section class="table-title" style="margin-top:24px;"> ${locale.i18n('code_simples', 'CODE SAMPLES')} </div>
       <div class="code-panel">
         <div class="code-panel-header">
           ${this.renderSelectLang()}
@@ -36640,29 +36764,20 @@ class CodeSimples extends lit_element_s {
         <div class="code-panel-body">
           <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;" @click='${e => {
       copyToClipboard(this.genCode(), e);
-    }}'> Copy </button>
+    }}'> ${locale.i18n('copy', 'Copy')} </button>
           ${this.renderCode()}
         </div>
       </div>
     </div>`;
   }
 
-  randomParam(type, name, secureStore = false) {
+  randomParam(type, name) {
     var _this$resolved_spec$s;
 
     const securityObj = (_this$resolved_spec$s = this.resolved_spec.securitySchemes) === null || _this$resolved_spec$s === void 0 ? void 0 : _this$resolved_spec$s.find(v => v.securitySchemeId === name);
 
     if (securityObj) {
-      return securityObj.value;
-    }
-
-    if (secureStore) {
-      const trEl = this.shadowRoot.getElementById(`security-scheme-${name}`);
-      console.log(type, name, secureStore, trEl); // eslint-disable-line
-
-      if (trEl) {
-        return trEl.value;
-      }
+      return null;
     }
 
     const store = JSON.parse(localStorage.getItem(code_simples_localStorageKey)) || {};
@@ -36689,12 +36804,42 @@ class CodeSimples extends lit_element_s {
   }
 
   genCode() {
+    console.log(this.resolved_spec.securitySchemes); // eslint-disable-line no-console
+
     const headers = [];
     const queryString = [];
     const postData = [];
     const cookies = [];
     const method = this.method.toUpperCase();
     let url = this.serverUrl + this.path;
+
+    for (const i in this.resolved_spec.securitySchemes) {
+      const {
+        name,
+        value
+      } = this.resolved_spec.securitySchemes[i];
+
+      if (this.resolved_spec.securitySchemes[i].in === 'header' && value !== '') {
+        headers.push({
+          name,
+          value
+        });
+      }
+
+      if (this.resolved_spec.securitySchemes[i].in === 'query' && value !== '') {
+        queryString.push({
+          name,
+          value
+        });
+      }
+
+      if (this.resolved_spec.securitySchemes[i].in === 'body' && value !== '') {
+        postData.push({
+          name,
+          value: value || ''
+        });
+      }
+    }
 
     for (const i in this.parameters) {
       const {
@@ -36703,36 +36848,41 @@ class CodeSimples extends lit_element_s {
       const {
         type
       } = this.parameters[i].schema;
+      const value = this.randomParam(type, name);
+
+      if (!value) {
+        continue;
+      }
 
       if (this.parameters[i].in === 'cookie') {
         cookies.push({
           name,
-          value: this.randomParam(type, name)
+          value
         });
       }
 
       if (this.parameters[i].in === 'header') {
         headers.push({
           name,
-          value: this.randomParam(type, name, true)
+          value
         });
       }
 
       if (this.parameters[i].in === 'query' && this.parameters[i].required) {
         queryString.push({
           name,
-          value: this.randomParam(type, name)
+          value
         });
       }
 
       if (this.parameters[i].in === 'path' && this.parameters[i].required) {
-        url = url.replaceAll(`{${name}}`, this.randomParam(type, name));
+        url = url.replaceAll(`{${name}}`, value);
       }
 
       if (this.parameters[i].in === 'body' && this.parameters[i].required) {
         postData.push({
           name,
-          value: this.randomParam(type, name)
+          value
         });
       }
     }
@@ -36792,7 +36942,7 @@ class CodeSimples extends lit_element_s {
 
   renderSelectLang() {
     return $` <div @click="${this.onOpenPopupClick}" class="selector">
-      Request Sample Language: <span>${this.lang}</span>
+      ${locale.i18n('request_simple_lang', 'Request Sample Language')}: <span>${this.lang}</span>
       ${this.client ? $`<span>/</span>` : ''}
       ${this.client ? $`<span>${this.client}</span> ` : ''}
       <span>&#709;</span>
@@ -36870,6 +37020,7 @@ customElements.define('code-simples', CodeSimples);
  // eslint-disable-line import/extensions
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -37031,8 +37182,12 @@ class ApiRequest extends lit_element_s {
       selectedRequestBodyExample: {
         type: String,
         attribute: 'selected-request-body-example'
-      } // internal tracking of selected request-body example
-
+      },
+      // internal tracking of selected request-body example
+      specLang: {
+        type: String,
+        attribute: 'spec-lang'
+      }
     };
   }
 
@@ -37138,7 +37293,7 @@ class ApiRequest extends lit_element_s {
     return $`
     <div class="example-input col regular-font request-panel ${'read focused'.includes(this.renderStyle) || this.callback === 'true' ? 'read-mode' : 'view-mode'}">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
-        ${this.callback === 'true' ? 'CALLBACK REQUEST' : 'REQUEST'}
+        ${this.callback === 'true' ? locale.i18n('callback_request', 'CALLBACK REQUEST') : locale.i18n('request', 'REQUEST')}
       </div>
       <div>
         ${guard_i([this.method, this.path, this.allowTry, this.parameters, this.activeParameterSchemaTabs], () => this.inputParametersTemplate('path'))}
@@ -37269,6 +37424,7 @@ class ApiRequest extends lit_element_s {
   }
 
   inputParametersTemplate(paramType) {
+    const lang = locale.getLocale();
     const filteredParams = this.parameters ? this.parameters.filter(param => param.in === paramType) : [];
 
     if (filteredParams.length === 0) {
@@ -37278,13 +37434,13 @@ class ApiRequest extends lit_element_s {
     let title = '';
 
     if (paramType === 'path') {
-      title = 'PATH PARAMETERS';
+      title = locale.i18n('path_params', 'PATH PARAMETERS');
     } else if (paramType === 'query') {
-      title = 'QUERY-STRING PARAMETERS';
+      title = locale.i18n('query_param', 'QUERY-STRING PARAMETERS');
     } else if (paramType === 'header') {
-      title = 'REQUEST HEADERS';
+      title = locale.i18n('req_headers', 'REQUEST HEADERS');
     } else if (paramType === 'cookie') {
-      title = 'COOKIES';
+      title = locale.i18n('cookie', 'COOKIES');
     }
 
     const tableRows = [];
@@ -37402,6 +37558,7 @@ class ApiRequest extends lit_element_s {
                               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
                               schema-hide-read-only = "${this.schemaHideReadOnly.includes(this.method)}"
                               schema-hide-write-only = "${this.schemaHideWriteOnly.includes(this.method)}"
+                              spec-Lang = "${this.specLang}"
                               exportparts = "btn:btn, btn-fill:btn-fill, btn-outline:btn-outline, btn-try:btn-try, btn-clear:btn-clear, btn-clear-resp:btn-clear-resp,
             file-input:file-input, textbox:textbox, textbox-param:textbox-param, textarea:textarea, textarea-param:textarea-param, 
             anchor:anchor, anchor-param-example:anchor-param-example"
@@ -37423,8 +37580,8 @@ class ApiRequest extends lit_element_s {
         ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? $`
             <td colspan="${this.allowTry === 'true' ? '1' : '2'}">
               <div class="param-constraint">
-                ${paramSchema.default ? $`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                ${paramSchema.pattern ? $`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                ${paramSchema.default ? $`<span style="font-weight:bold">${locale.i18n('default', 'Default')}: </span>${paramSchema.default}<br/>` : ''}
+                ${paramSchema.pattern ? $`<span style="font-weight:bold">>${locale.i18n('pattern', 'Pattern')}: </span>${paramSchema.pattern}<br/>` : ''}
                 ${paramSchema.constrain ? $`${paramSchema.constrain}<br/>` : ''}
                 ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => $`
                   ${i > 0 ? '┃' : $`<span style="font-weight:bold">Allowed: </span>`}
@@ -37450,7 +37607,7 @@ class ApiRequest extends lit_element_s {
       <tr>
         ${this.allowTry === 'true' ? $`<td style="border:none"> </td>` : ''}
         <td colspan="2" style="border:none">
-          <span class="m-markdown-small">${unsafe_html_o(marked(param.description || ''))}</span>
+          <span class="m-markdown-small">${unsafe_html_o(marked(param[`x-description-${lang}`] || param.description || ''))}</span>
           ${this.exampleListTemplate.call(this, param.name, paramSchema.type, example.exampleList)}
         </td>
       </tr>
@@ -37651,6 +37808,7 @@ class ApiRequest extends lit_element_s {
               allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
               schema-hide-read-only = "${this.schemaHideReadOnly}"
               schema-hide-write-only = "${this.schemaHideWriteOnly}"
+              spec-Lang = "${this.specLang}"
               exportparts = "schema-description:schema-description, schema-multiline-toggle:schema-multiline-toggle"
             > </schema-tree>
           `;
@@ -37749,6 +37907,7 @@ class ApiRequest extends lit_element_s {
             schema-expand-level = "${this.schemaExpandLevel}"
             schema-description-expanded = "${this.schemaDescriptionExpanded}"
             allow-schema-description-expand-toggle = "${this.allowSchemaDescriptionExpandToggle}",
+            spec-Lang = "${this.specLang}"
           > </schema-tree>
         </div>`}
       </div>
@@ -37756,6 +37915,7 @@ class ApiRequest extends lit_element_s {
   }
 
   formDataTemplate(schema, mimeType, exampleValue = '') {
+    const lang = locale.getLocale();
     const formDataTableRows = [];
 
     if (schema.properties) {
@@ -37830,8 +37990,8 @@ class ApiRequest extends lit_element_s {
               <td>
                 ${paramSchema.default || paramSchema.constrain || paramSchema.allowedValues || paramSchema.pattern ? $`
                     <div class="param-constraint">
-                      ${paramSchema.default ? $`<span style="font-weight:bold">Default: </span>${paramSchema.default}<br/>` : ''}
-                      ${paramSchema.pattern ? $`<span style="font-weight:bold">Pattern: </span>${paramSchema.pattern}<br/>` : ''}
+                      ${paramSchema.default ? $`<span style="font-weight:bold">${locale.i18n('default', 'Default')}: </span>${paramSchema.default}<br/>` : ''}
+                      ${paramSchema.pattern ? $`<span style="font-weight:bold">${locale.i18n('pattern', 'Pattern')}: </span>${paramSchema.pattern}<br/>` : ''}
                       ${paramSchema.constrain ? $`${paramSchema.constrain}<br/>` : ''}
                       ${paramSchema.allowedValues && paramSchema.allowedValues.split('┃').map((v, i) => $`
                         ${i > 0 ? '┃' : $`<span style="font-weight:bold">Allowed: </span>`}
@@ -37860,7 +38020,7 @@ class ApiRequest extends lit_element_s {
             <tr>
               <td style="border:none"> </td>
               <td colspan="2" style="border:none; margin-top:0; padding:0 5px 8px 5px;"> 
-                <span class="m-markdown-small">${unsafe_html_o(marked(fieldSchema.description || ''))}</span>
+                <span class="m-markdown-small">${unsafe_html_o(marked(fieldSchema[`x-description-${lang}`] || fieldSchema.description || ''))}</span>
                 ${this.exampleListTemplate.call(this, fieldName, paramSchema.type, example.exampleList)}
               </td>
             </tr>
@@ -37911,9 +38071,9 @@ class ApiRequest extends lit_element_s {
 
     return $`
       <div class="row" style="font-size:var(--font-size-small); margin:5px 0">
-        <div class="response-message ${this.responseStatus}">Response Status: ${this.responseMessage}</div>
+        <div class="response-message ${this.responseStatus}">${locale.i18n('response_status', 'Response Status')}: ${this.responseMessage}</div>
         <div style="flex:1"></div>
-        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">CLEAR RESPONSE</button>
+        <button class="m-btn" part="btn btn-outline btn-clear-response" @click="${this.clearResponseData}">${locale.i18n('clear_response', 'CLEAR RESPONSE')}</button>
       </div>
       <div class="tab-panel col" style="border-width:0 0 1px 0;">
         <div id="tab_buttons" class="tab-buttons row" @click="${e => {
@@ -37923,9 +38083,9 @@ class ApiRequest extends lit_element_s {
 
       this.activeResponseTab = e.target.dataset.tab;
     }}">
-          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > RESPONSE</button>
-          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > RESPONSE HEADERS</button>
-          <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>CURL</button>
+          <button class="tab-btn ${this.activeResponseTab === 'response' ? 'active' : ''}" data-tab = 'response' > ${locale.i18n('response', 'RESPONSE')}</button>
+          <button class="tab-btn ${this.activeResponseTab === 'headers' ? 'active' : ''}"  data-tab = 'headers' > ${locale.i18n('response_head', 'RESPONSE HEADERS')}</button>
+          <button class="tab-btn ${this.activeResponseTab === 'curl' ? 'active' : ''}" data-tab = 'curl'>${locale.i18n('curl', 'CURL')}</button>
         </div>
         ${this.responseIsBlob ? $`
             <div class="tab-content col" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};">
@@ -37936,24 +38096,24 @@ class ApiRequest extends lit_element_s {
               </button>
               ${this.responseBlobType === 'view' ? $`<button class="m-btn thin-border mar-top-8" style="width:135px"  @click='${e => {
       viewResource(this.responseBlobUrl, e);
-    }}' part="btn btn-outline">VIEW (NEW TAB)</button>` : ''}
+    }}' part="btn btn-outline">${locale.i18n('view_new_tab', 'VIEW (NEW TAB)')}</button>` : ''}
             </div>` : $`
             <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'response' ? 'flex' : 'none'};" >
               <button class="toolbar-btn" style="position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseText, e);
-    }}' part="btn btn-fill"> Copy </button>
+    }}' part="btn btn-fill"> ${locale.i18n('copy', 'Copy')} </button>
               <pre style="white-space:pre; min-height:50px; height:var(--resp-area-height, 400px); resize:vertical; overflow:auto">${responseContent}</pre>
             </div>`}
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'headers' ? 'flex' : 'none'};" >
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.responseHeaders, e);
-    }}' part="btn btn-fill"> Copy </button>
+    }}' part="btn btn-fill"> ${locale.i18n('copy', 'Copy')} </button>
           <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.responseHeaders, (prism_default()).languages.css, 'css'))}</code></pre>
         </div>
         <div class="tab-content col m-markdown" style="flex:1; display:${this.activeResponseTab === 'curl' ? 'flex' : 'none'};">
           <button  class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(this.curlSyntax.replace(/\\$/, ''), e);
-    }}' part="btn btn-fill"> Copy </button>
+    }}' part="btn btn-fill"> ${locale.i18n('copy', 'Copy')} </button>
           <pre style="white-space:pre"><code>${unsafe_html_o(prism_default().highlight(this.curlSyntax.trim().replace(/\\$/, ''), (prism_default()).languages.shell, 'shell'))}</code></pre>
         </div>
       </div>`;
@@ -37979,7 +38139,7 @@ class ApiRequest extends lit_element_s {
         ${selectServerDropdownHtml}
         ${this.serverUrl ? $`
             <div style="display:flex; align-items:baseline;">
-              <div style="font-weight:bold; padding-right:5px;">API Server</div> 
+              <div style="font-weight:bold; padding-right:5px;">${locale.i18n('api_server', 'API Server')}</div> 
               <span class = "gray-text"> ${this.serverUrl} </span>
             </div>
           ` : ''}
@@ -37992,21 +38152,21 @@ class ApiRequest extends lit_element_s {
           ${selectedServerHtml}
         </div>
         <div style="display:flex;">
-          <div style="font-weight:bold; padding-right:5px;">Authentication</div>
+          <div style="font-weight:bold; padding-right:5px;">${locale.i18n('authentication', 'Authentication')}</div>
           ${((_this$security = this.security) === null || _this$security === void 0 ? void 0 : _this$security.length) > 0 ? $`
               ${this.api_keys.length > 0 ? $`<div style="color:var(--blue); overflow:hidden;"> 
                     ${this.api_keys.length === 1 ? `${(_this$api_keys$ = this.api_keys[0]) === null || _this$api_keys$ === void 0 ? void 0 : _this$api_keys$.typeDisplay} in ${this.api_keys[0].in}` : `${this.api_keys.length} API keys applied`} 
-                  </div>` : $`<div class="gray-text">Required  <span style="color:var(--red)">(None Applied)</span>`}` : $`<span class="gray-text"> Not Required </span>`}
+                  </div>` : $`<div class="gray-text">${locale.i18n('required', 'Required  <span style="color:var(--red)">(None Applied)')}</span>`}` : $`<span class="gray-text"> ${locale.i18n('not_required', 'Not Required')} </span>`}
         </div>
       </div>
       ${this.parameters.length > 0 || this.request_body ? $`
-            <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="Fills with example data (if provided)">
-              FILL EXAMPLE
+            <button class="m-btn thin-border" part="btn btn-outline btn-fill" style="margin-right:5px;" @click="${this.onFillRequestData}" title="${locale.i18n('file_with', 'Fills with example data (if provided)')}">
+              ${locale.i18n('fill_example', 'FILL EXAMPLE')}
             </button>
             <button class="m-btn thin-border" part="btn btn-outline btn-clear" style="margin-right:5px;" @click="${this.onClearRequestData}">
-              CLEAR
+              ${locale.i18n('clear', 'CLEAR')}
             </button>` : ''}
-      <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">TRY</button>
+      <button class="m-btn primary thin-border" part="btn btn-try" @click="${this.onTryClick}">${locale.i18n('try', 'TRY')}</button>
     </div>
     ${this.responseMessage === '' ? '' : this.apiResponseTabTemplate()}
     `;
@@ -38558,6 +38718,7 @@ customElements.define('api-request', ApiRequest);
 
 
 
+
 class SchemaTable extends lit_element_s {
   static get properties() {
     return {
@@ -38674,7 +38835,7 @@ class SchemaTable extends lit_element_s {
               <div part="schema-multiline-toggle" class='toolbar-item' @click='${() => {
       this.schemaDescriptionExpanded = this.schemaDescriptionExpanded === 'true' ? 'false' : 'true';
     }}'> 
-                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+                ${this.schemaDescriptionExpanded === 'true' ? locale.i18n('singleline_description', 'Single line description') : locale.i18n('multiline_description', 'Multiline description')}
               </div>
             ` : ''}
         </div>
@@ -38851,10 +39012,10 @@ class SchemaTable extends lit_element_s {
           ${schemaDescription ? $`<span class="m-markdown-small">
               ${unsafe_html_o(marked(`${schemaTitle ? `**${schemaTitle}:**` : ''} ${schemaDescription} ${constraint || defaultValue || allowedValues || pattern ? '<span  class="more-content">⤵</span>' : ''}`))}
               </span>` : schemaTitle ? $`${schemaTitle} ${constraint || defaultValue || allowedValues || pattern ? $`<span class="more-content">⤵</span>` : ''}` : ''}
-          ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Constraints: </span> ${constraint}</div>` : ''}
-          ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
-          ${pattern ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${constraint ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${locale.i18n('constraints', 'Constraints')}: </span> ${constraint}</div>` : ''}
+          ${defaultValue ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${locale.i18n('default', 'Default')}: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${locale.i18n('allowed', 'Allowed')}: </span>${allowedValues}</div>` : ''}
+          ${pattern ? $`<div style='display:inline-block; line-break:anywhere; margin-right:8px;'> <span class='bold-text'>${locale.i18n('pattern', 'Pattern')}: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
@@ -38881,6 +39042,7 @@ customElements.define('schema-table', SchemaTable);
 ;// CONCATENATED MODULE: ./src/components/api-response.js
 
  // eslint-disable-line import/extensions
+
 
 
 
@@ -38995,7 +39157,7 @@ class ApiResponse extends lit_element_s {
     return $`
     <div class="col regular-font response-panel ${this.renderStyle}-mode">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
-        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
+        ${this.callback === 'true' ? locale.i18n('response', 'CALLBACK RESPONSE') : locale.i18n('response', 'RESPONSE')}
       </div>
       <div>
         ${this.responseTemplate()}
@@ -39101,8 +39263,8 @@ class ApiResponse extends lit_element_s {
           this.activeSchemaTab = e.target.dataset.tab;
         }
       }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>${locale.i18n('example', 'EXAMPLE')} </button>
+                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >${locale.i18n('schema', 'SCHEMA')}</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1 ? $`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>` : $`${this.mimeTypeDropdownTemplate(Object.keys(this.mimeResponsesForEachStatus[status]))}`}
                 </div>
@@ -39119,7 +39281,7 @@ class ApiResponse extends lit_element_s {
 
   responseHeaderListTemplate(respHeaders) {
     return $`
-      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
+      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">${locale.i18n('response_head', 'RESPONSE HEADERS')}</div> 
       <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
         ${respHeaders.map(v => $`
           <tr>
@@ -39485,6 +39647,7 @@ function componentsTemplate() {
 
 
 
+
 /* eslint-disable indent */
 
 function overview_template_headingRenderer() {
@@ -39498,12 +39661,13 @@ function overview_template_headingRenderer() {
 function overviewTemplate() {
   var _this$resolvedSpec, _this$resolvedSpec$in, _this$resolvedSpec$in2, _this$specUrl;
 
+  const lang = locale.getLocale();
   return $`
     <section id="overview" part="section-overview"
       class="observe-me ${this.renderStyle === 'view' ? 'section-gap' : 'section-gap--read-mode'}">
       ${(_this$resolvedSpec = this.resolvedSpec) !== null && _this$resolvedSpec !== void 0 && _this$resolvedSpec.info ? $`
           <div id="api-title" part="section-overview-title" style="font-size:32px">
-            ${this.resolvedSpec.info.title}
+            ${this.resolvedSpec.info[`x-title-${lang}`] || this.resolvedSpec.info.title}
             ${!this.resolvedSpec.info.version ? '' : $`
               <span style = 'font-size:var(--font-size-small);font-weight:bold'>
                 ${this.resolvedSpec.info.version}
@@ -39529,9 +39693,9 @@ function overviewTemplate() {
           </div>
           <slot name="overview"></slot>
           <div id="api-description">
-          ${this.resolvedSpec.info.description ? $`${unsafe_html_o(`
+          ${this.resolvedSpec.info.description || this.resolvedSpec.info[`x-description-${lang}`] ? $`${unsafe_html_o(`
                 <div class="m-markdown regular-font">
-                ${marked(this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? {
+                ${marked(this.resolvedSpec.info[`x-description-${lang}`] || this.resolvedSpec.info.description, this.infoDescriptionHeadingsInNavBar === 'true' ? {
     renderer: overview_template_headingRenderer()
   } : undefined)}
               </div>`)}` : ''}
@@ -39544,6 +39708,7 @@ function overviewTemplate() {
 ;// CONCATENATED MODULE: ./src/templates/server-template.js
 
  // eslint-disable-line import/extensions
+
 
 
 function setApiServer(serverUrl) {
@@ -39634,7 +39799,7 @@ function serverTemplate() {
 
   return $`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <div part = "section-servers-title" class = "sub-title">API SERVER</div>
+    <div part = "section-servers-title" class = "sub-title">${locale.i18n('api_server', 'API Server')}</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${!this.resolvedSpec.servers || ((_this$resolvedSpec$se = this.resolvedSpec.servers) === null || _this$resolvedSpec$se === void 0 ? void 0 : _this$resolvedSpec$se.length) === 0 ? '' : $`
           ${(_this$resolvedSpec2 = this.resolvedSpec) === null || _this$resolvedSpec2 === void 0 ? void 0 : _this$resolvedSpec2.servers.map((server, i) => $`
@@ -39654,7 +39819,7 @@ function serverTemplate() {
             <br/>
           `)}
       `}
-      <div class="table-title primary-text" part="label-selected-server"> SELECTED: ${((_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl) || 'none'}</div>
+      <div class="table-title primary-text" part="label-selected-server"> ${locale.i18n('selected', 'SELECTED')}: ${((_this$selectedServer = this.selectedServer) === null || _this$selectedServer === void 0 ? void 0 : _this$selectedServer.computedUrl) || 'none'}</div>
     </div>
     <slot name="servers"></slot>
     ${serverVarsTemplate.call(this)}
@@ -39662,6 +39827,7 @@ function serverTemplate() {
 }
 /* eslint-enable indent */
 ;// CONCATENATED MODULE: ./src/templates/navbar-template.js
+
 
 
 
@@ -39713,6 +39879,7 @@ function navbarTemplate() {
     `;
   }
 
+  const lang = locale.getLocale();
   return $`
   <nav id="nav" class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
@@ -39723,7 +39890,7 @@ function navbarTemplate() {
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> 
-                    ${((_this$resolvedSpec$in = this.resolvedSpec.info) === null || _this$resolvedSpec$in === void 0 ? void 0 : (_this$resolvedSpec$in2 = _this$resolvedSpec$in.title) === null || _this$resolvedSpec$in2 === void 0 ? void 0 : _this$resolvedSpec$in2.trim()) || 'Overview'}
+                    ${this.resolvedSpec.info[`x-title-${lang}`] || ((_this$resolvedSpec$in = this.resolvedSpec.info) === null || _this$resolvedSpec$in === void 0 ? void 0 : (_this$resolvedSpec$in2 = _this$resolvedSpec$in.title) === null || _this$resolvedSpec$in2 === void 0 ? void 0 : _this$resolvedSpec$in2.trim()) || 'Overview'}
                   </div>` : ''}
               <div class="overview-headers">
                 ${this.resolvedSpec.infoDescriptionHeaders.map(header => $`
@@ -39738,12 +39905,12 @@ function navbarTemplate() {
               </div>
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? $`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             ` : $`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${e => this.scrollToEventTarget(e, false)}'> 
-            ${((_this$resolvedSpec$in3 = this.resolvedSpec.info) === null || _this$resolvedSpec$in3 === void 0 ? void 0 : (_this$resolvedSpec$in4 = _this$resolvedSpec$in3.title) === null || _this$resolvedSpec$in4 === void 0 ? void 0 : _this$resolvedSpec$in4.trim()) || 'Overview'} 
+            ${this.resolvedSpec.info[`x-title-${lang}`] || ((_this$resolvedSpec$in3 = this.resolvedSpec.info) === null || _this$resolvedSpec$in3 === void 0 ? void 0 : (_this$resolvedSpec$in4 = _this$resolvedSpec$in3.title) === null || _this$resolvedSpec$in4 === void 0 ? void 0 : _this$resolvedSpec$in4.trim()) || 'Overview'} 
               </div>`}
         `}
     
-      ${this.allowServerSelection === 'false' ? '' : $`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${e => this.scrollToEventTarget(e, false)}'> API Servers </div>`}
-      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : $`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${e => this.scrollToEventTarget(e, false)}'> Authentication </div>`}
+      ${this.allowServerSelection === 'false' ? '' : $`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${e => this.scrollToEventTarget(e, false)}'> ${locale.i18n('api_servers', 'API Servers')} </div>`}
+      ${this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes ? '' : $`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${e => this.scrollToEventTarget(e, false)}'> ${locale.i18n('authentication', 'Authentication')} </div>`}
 
       <div id='link-operations-top' class='nav-bar-section operations' data-content-id='operations-top' @click = '${e => this.scrollToEventTarget(e, false)}'>
         <div style="font-size:16px; display:flex; margin-left:10px;">
@@ -39819,7 +39986,7 @@ function navbarTemplate() {
                   ${$`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
                       ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`}
-                  ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
+                  ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)"> ${locale.i18n('webhook', 'WEBHOOK')} </span>` : ''}
                   ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
                 </span>
               </div>`)}
@@ -39971,11 +40138,12 @@ function focusedEndpointTemplate() {
 
 
 
+
 /* eslint-disable indent */
 
 function codeSamplesTemplate(xCodeSamples) {
   return $`
-  <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
+  <section class="table-title" style="margin-top:24px;"> ${locale.i18n('code_simples', 'CODE SAMPLES')} </div>
   <div class="tab-panel col"
     @click="${e => {
     if (!e.target.classList.contains('tab-btn')) {
@@ -40000,7 +40168,7 @@ function codeSamplesTemplate(xCodeSamples) {
       <div class="tab-content m-markdown" style= "display:${i === 0 ? 'block' : 'none'}" data-tab = '${v.lang}${i}'>
         <button class="toolbar-btn" style = "position:absolute; top:12px; right:8px" @click='${e => {
       copyToClipboard(v.source, e);
-    }}'> Copy </button>
+    }}'> ${locale.i18n('copy', 'Copy')} </button>
         <pre><code class="language">${(prism_default()).languages[(_v$lang = v.lang) === null || _v$lang === void 0 ? void 0 : _v$lang.toLowerCase()] ? unsafe_html_o(prism_default().highlight(v.source, (prism_default()).languages[(_v$lang2 = v.lang) === null || _v$lang2 === void 0 ? void 0 : _v$lang2.toLowerCase()], (_v$lang3 = v.lang) === null || _v$lang3 === void 0 ? void 0 : _v$lang3.toLowerCase())) : v.source}</code></pre>
       </div>`;
   })}
@@ -40339,7 +40507,7 @@ function headTemplate() {
   }}">YAML</button>
         `}
       </div>`}
-      
+      <slot name="head"></slot>
     </header>`;
 }
 /* eslint-enable indent */
@@ -41126,6 +41294,7 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
 
 
  // import { expandCollapseNavBarTag } from '@/templates/navbar-template';
+
 
 
 
@@ -42153,7 +42322,7 @@ class RapiDoc extends lit_element_s {
 
       if (updateSelectedApiKey) {
         if (this.resolvedSpec) {
-          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId === rapidocApiKey);
+          const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId.toString().toLowerCase() === rapidocApiKey);
 
           if (!rapiDocApiKey) {
             this.resolvedSpec.securitySchemes.push({
@@ -42257,6 +42426,7 @@ class RapiDoc extends lit_element_s {
       return;
     }
 
+    locale.setLocale(this.specLang);
     this.matchPaths = '';
 
     try {
@@ -42276,6 +42446,15 @@ class RapiDoc extends lit_element_s {
       this.loadFailed = true;
       this.resolvedSpec = null;
       console.error(`RapiDoc: Unable to resolve the API spec..  ${err.message}`); // eslint-disable-line no-console
+    }
+
+    if (this.apiKeyValue && this.apiKeyValue !== '') {
+      const rapiDocApiKey = this.resolvedSpec.securitySchemes.find(v => v.securitySchemeId.toString().toLowerCase() === rapidocApiKey);
+
+      if (rapiDocApiKey) {
+        rapiDocApiKey.value = this.apiKeyValue;
+        rapiDocApiKey.finalKeyValue = this.apiKeyValue;
+      }
     }
   }
 
@@ -67690,7 +67869,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("e0e5ef0e3f58e9ed768c")
+/******/ 		__webpack_require__.h = () => ("ec2868713c79eac34f11")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */
@@ -68684,7 +68863,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	// module cache are used so entry inlining is disabled
 /******/ 	// startup
 /******/ 	// Load entry module and return exports
-/******/ 	var __webpack_exports__ = __webpack_require__(8875);
+/******/ 	var __webpack_exports__ = __webpack_require__(6696);
 /******/ 	
 /******/ })()
 ;

@@ -1,3 +1,5 @@
+import { locale } from '~/locale';
+
 /* For Delayed Event Handler Execution */
 export function debounce(fn, delay) {
   let timeoutID = null;
@@ -11,7 +13,7 @@ export function debounce(fn, delay) {
 }
 
 export const invalidCharsRegEx = /[\s#:?&={}]/g; // used for generating valid html element ids by replacing the invalid chars with hyphen (-)
-export const rapidocApiKey = '_rapidoc_api_key';
+export const rapidocApiKey = 'apikey';
 
 export function sleep(ms) {
   // eslint-disable-next-line no-promise-executor-return
@@ -81,6 +83,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
   if (!searchVal.trim() || searchOptions.length === 0) {
     return;
   }
+  const lang = locale.getLocale();
 
   const pathsMatched = [];
   allSpecTags.forEach((tag) => {
@@ -90,8 +93,8 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
         stringToSearch = path.path;
       }
       if (searchOptions.includes('search-api-descr')) {
-        stringToSearch = `${stringToSearch} ${path.summary || ''}`;
-        stringToSearch = `${stringToSearch} ${path.description || ''}`;
+        stringToSearch = `${stringToSearch} ${path[`x-summary-${lang}`] || path.summary || ''}`;
+        stringToSearch = `${stringToSearch} ${path[`x-description-${lang}`] || path.description || ''}`;
       }
       if (searchOptions.includes('search-api-params')) {
         stringToSearch = `${stringToSearch} ${path.parameters?.map((v) => v.name).join(' ') || ''}`;
@@ -108,7 +111,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
       }
 
       if (searchOptions.includes('search-api-resp-descr')) {
-        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map((v) => v.description || '').join(' ')}`;
+        stringToSearch = `${stringToSearch} ${Object.values(path.responses).map((v) => v[`x-description-${lang}`] || v.description || '').join(' ')}`;
       }
 
       if (stringToSearch.toLowerCase().includes(searchVal.trim().toLowerCase())) {
@@ -116,7 +119,7 @@ export function advancedSearch(searchVal, allSpecTags, searchOptions = []) {
           elementId: path.elementId,
           method: path.method,
           path: path.path,
-          summary: path.summary || path.description || '',
+          summary: path[`x-summary-${lang}`] || path[`x-description-${lang}`] || path.summary || path.description || '',
           deprecated: path.deprecated,
         });
       }

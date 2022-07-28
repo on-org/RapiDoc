@@ -434,7 +434,7 @@ export default function securitySchemeTemplate() {
                       ${v.in !== 'cookie'
                         ? html`
                           <input type = "text" value = "${v.value}" class="${v.type} ${v.securitySchemeId} api-key-input" placeholder = "api-token" spellcheck = "false">
-                          <button class="m-btn thin-border" style = "margin-left:5px;"
+                          <button class="m-btn thin-border api-key-button" style = "margin-left:5px;"
                             part = "btn btn-outline"
                             @click="${(e) => { onApiKeyChange.call(this, v.securitySchemeId, e); }}">
                             ${v.finalKeyValue ? 'UPDATE' : 'SET'}

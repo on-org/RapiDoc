@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import { marked } from 'marked';
+import { locale } from '~/locale';
 
 export function setApiServer(serverUrl) {
   const serverObj = this.resolvedSpec?.servers.find((s) => s.url === serverUrl);
@@ -86,7 +87,7 @@ export default function serverTemplate() {
   if (!this.resolvedSpec || this.resolvedSpec.specLoadError) { return ''; }
   return html`
   <section id = 'servers' part="section-servers" style="text-align:left; direction:ltr; margin-top:24px; margin-bottom:24px;" class='regular-font observe-me ${'read focused'.includes(this.renderStyle) ? 'section-gap--read-mode' : 'section-gap'}'>
-    <div part = "section-servers-title" class = "sub-title">API SERVER</div>
+    <div part = "section-servers-title" class = "sub-title">${locale.i18n('api_server', 'API Server')}</div>
     <div class = 'mono-font' style='margin: 12px 0; font-size:calc(var(--font-size-small) + 1px);'>
       ${!this.resolvedSpec.servers || this.resolvedSpec.servers?.length === 0
         ? ''
@@ -106,7 +107,7 @@ export default function serverTemplate() {
             <br/>
           `)}
       `}
-      <div class="table-title primary-text" part="label-selected-server"> SELECTED: ${this.selectedServer?.computedUrl || 'none'}</div>
+      <div class="table-title primary-text" part="label-selected-server"> ${locale.i18n('selected', 'SELECTED')}: ${this.selectedServer?.computedUrl || 'none'}</div>
     </div>
     <slot name="servers"></slot>
     ${serverVarsTemplate.call(this)}

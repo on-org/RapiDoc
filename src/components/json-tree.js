@@ -4,6 +4,7 @@ import FontStyles from '~/styles/font-styles';
 import BorderStyles from '~/styles/border-styles';
 import InputStyles from '~/styles/input-styles';
 import CustomStyles from '~/styles/custom-styles';
+import { locale } from '~/locale';
 
 export default class JsonTree extends LitElement {
   static get properties() {
@@ -91,7 +92,7 @@ export default class JsonTree extends LitElement {
     return html`
       <div class = "json-tree" >
         <div class='toolbar'> 
-          <button class="toolbar-btn" part="btn btn-fill btn-copy" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> Copy </button>
+          <button class="toolbar-btn" part="btn btn-fill btn-copy" @click='${(e) => { copyToClipboard(JSON.stringify(this.data, null, 2), e); }}'> ${locale.i18n('copy', 'Copy')} </button>
         </div>
         ${this.generateTree(this.data, true)}
       </div>  

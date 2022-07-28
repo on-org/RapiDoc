@@ -2,6 +2,7 @@
 import OpenApiParser from '@apitools/openapi-parser';
 import { marked } from 'marked';
 import { invalidCharsRegEx, rapidocApiKey, sleep } from '~/utils/common-utils';
+import { locale } from '~/locale';
 
 export default async function ProcessSpec(specUrl, generateMissingTags = false, sortTags = false, sortEndpointsBy = '', attrApiKey = '', attrApiKeyLocation = '', attrApiKeyValue = '', serverUrl = '') {
   let jsonParsedSpec;
@@ -240,6 +241,7 @@ function getComponents(openApiSpec) {
 }
 
 function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, sortTags = false) {
+  const lang = locale.getLocale();
   const supportedMethods = ['get', 'put', 'post', 'delete', 'patch', 'head', 'options']; // this is also used for ordering endpoints by methods
   const tags = openApiSpec.tags && Array.isArray(openApiSpec.tags)
     ? openApiSpec.tags.map((v) => ({
@@ -311,7 +313,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
           }
 
           // Generate a short summary which is broken
-          let shortSummary = (pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
+          let shortSummary = (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
           if (shortSummary.length > 100) {
             [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
           }
@@ -345,8 +347,8 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
             expanded: false,
             isWebhook,
             expandedAtLeastOnce: false,
-            summary: (pathOrHookObj.summary || ''),
-            description: (pathOrHookObj.description || ''),
+            summary: (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj.summary || ''),
+            description: (pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.description || ''),
             shortSummary,
             method: methodName,
             path: pathOrHookName,

@@ -1,8 +1,11 @@
+import { locale } from '~/locale';
+
 /* Generates an schema object containing type and constraint info */
 export function getTypeInfo(schema) {
   if (!schema) {
     return;
   }
+  const lang = locale.getLocale();
   let dataType = '';
   let constrain = '';
   // let examples;
@@ -33,7 +36,7 @@ export function getTypeInfo(schema) {
     deprecated: schema.deprecated ? '❌' : '',
     examples: schema.examples || schema.example,
     default: schema.default != null ? `${schema.default}` : '',
-    description: schema.description || '',
+    description: schema[`x-description-${lang}`] || schema.description || '',
     constrain: '',
     allowedValues: '',
     arrayType: '',
@@ -43,7 +46,7 @@ export function getTypeInfo(schema) {
   if (info.type === '{recursive}') {
     info.description = schema.$ref.substring(schema.$ref.lastIndexOf('/') + 1);
   } else if (info.type === '{missing-type-info}' || info.type === 'any') {
-    info.description = info.description || '';
+    info.description = info[`x-description-${lang}`] || info.description || '';
   }
 
   // Set Allowed Values
@@ -102,6 +105,8 @@ export function normalizeExamples(examples, dataType = 'string') {
     };
   }
 
+  const lang = locale.getLocale();
+
   if (examples.constructor === Object) {
     const exampleValAndDescr = Object.values(examples);
     const exampleVal = exampleValAndDescr.length > 0
@@ -112,7 +117,7 @@ export function normalizeExamples(examples, dataType = 'string') {
     const exampleList = Object.values(examples).map((v) => ({
       value: typeof v.value === 'boolean' || typeof v.value === 'number' ? v.value.toString() : v.value,
       summary: v.summary,
-      description: v.description,
+      description: v[`x-description-${lang}`] || v.description,
     }));
     return { exampleVal, exampleList };
   }
@@ -274,11 +279,14 @@ function addSchemaInfoToExample(schema, obj) {
   if (typeof obj !== 'object' || obj === null) {
     return;
   }
+
+  const lang = locale.getLocale();
+
   if (schema.title) {
     obj['::TITLE'] = schema.title;
   }
-  if (schema.description) {
-    obj['::DESCRIPTION'] = schema.description;
+  if (schema.description || schema[`x-description-${lang}`]) {
+    obj['::DESCRIPTION'] = schema[`x-description-${lang}`] || schema.description;
   }
 }
 
@@ -513,11 +521,15 @@ export function schemaToSampleObj(schema, config = { }) {
 }
 
 function generateMarkdownForArrayAndObjectDescription(schema, level = 0) {
+  const lang = locale.getLocale();
+
   let markdown = '';
   if (schema.title) {
     markdown = `**${schema.title}:** `;
   }
-  if (schema.description) {
+  if (schema[`x-description-${lang}`] || null) {
+    markdown = `${markdown} ${schema[`x-description-${lang}`]} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
+  } else if (schema.description) {
     markdown = `${markdown} ${schema.description} ${schema.minItems || schema.maxItems ? '<span class="more-content">⤵</span><br/>' : ''}`;
   }
   if (schema.minItems) {
@@ -550,6 +562,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
   if (!schema) {
     return;
   }
+  const lang = locale.getLocale();
   if (schema.allOf) {
     const objWithAllProps = {};
     if (schema.allOf.length === 1 && !schema.allOf[0].properties && !schema.allOf[0].items) {
@@ -576,10 +589,10 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
     });
     obj = objWithAllProps;
   } else if (schema.anyOf || schema.oneOf) {
-    obj['::description'] = schema.description || '';
+    obj['::description'] = schema[`x-description-${lang}`] || schema.description || '';
     // 1. First iterate the regular properties
     if (schema.type === 'object' || schema.properties) {
-      obj['::description'] = schema.description || '';
+      obj['::description'] = schema[`x-description-${lang}`] || schema.description || '';
       obj['::type'] = 'object';
       // obj['::deprecated'] = schema.deprecated || false;
       for (const key in schema.properties) {
@@ -657,7 +670,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
           // If object type iterate all the properties and create an object-type-option
           const objTypeOption = {
             '::title': schema.title || '',
-            '::description': schema.description || '',
+            '::description': schema[`x-description-${lang}`] || schema.description || '',
             '::type': 'object',
             '::deprecated': schema.deprecated || false,
           };
@@ -672,7 +685,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
         } else if (v === 'array') {
           multiTypeOptions[`::OPTION~${i + 1}`] = {
             '::title': schema.title || '',
-            '::description': schema.description || '',
+            '::description': schema[`x-description-${lang}`] || schema.description || '',
             '::type': 'array',
             '::props': schemaInObjectNotation(schema.items, {}, (level + 1)),
           };
@@ -725,6 +738,7 @@ export function schemaInObjectNotation(schema, obj, level = 0, suffix = '') {
 
 /* Create Example object */
 export function generateExample(schema, mimeType, examples = '', example = '', includeReadOnly = true, includeWriteOnly = true, outputType = 'json', includeGeneratedExample = false) {
+  const lang = locale.getLocale();
   const finalExamples = [];
   // First check if examples is provided
   if (examples) {
@@ -756,7 +770,7 @@ export function generateExample(schema, mimeType, examples = '', example = '', i
       finalExamples.push({
         exampleId: eg,
         exampleSummary: examples[eg].summary || eg,
-        exampleDescription: examples[eg].description || '',
+        exampleDescription: examples[eg][`x-description-${lang}`] || examples[eg].description || '',
         exampleType: mimeType,
         exampleValue: egContent,
         exampleFormat: egFormat,

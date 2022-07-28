@@ -11,6 +11,7 @@ import CustomStyles from '~/styles/custom-styles';
 import Prism from 'prismjs';
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'; // eslint-disable-line import/extensions
 import HTTPSnippet from 'httpsnippet';
+import { locale } from '~/locale';
 
 import 'prismjs/components/prism-jsx';
 import 'prismjs/components/prism-java';
@@ -294,32 +295,26 @@ export default class CodeSimples extends LitElement {
     });
 
     return html`<div class="col regular-font request-panel">
-      <section class="table-title" style="margin-top:24px;">CODE SAMPLES</div>
+      <section class="table-title" style="margin-top:24px;"> ${locale.i18n('code_simples', 'CODE SAMPLES')} </div>
       <div class="code-panel">
         <div class="code-panel-header">
           ${this.renderSelectLang()}
           ${this.showPopup ? this.renderLangs() : ''}
         </div>
         <div class="code-panel-body">
-          <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;" @click='${(e) => { copyToClipboard(this.genCode(), e); }}'> Copy </button>
+          <button class="toolbar-btn" style="position:absolute;top: 26px;right: 17px;" @click='${(e) => { copyToClipboard(this.genCode(), e); }}'> ${locale.i18n('copy', 'Copy')} </button>
           ${this.renderCode()}
         </div>
       </div>
     </div>`;
   }
 
-  randomParam(type, name, secureStore = false) {
+  randomParam(type, name) {
     const securityObj = this.resolved_spec.securitySchemes?.find((v) => (v.securitySchemeId === name));
     if (securityObj) {
-      return securityObj.value;
+      return null;
     }
-    if (secureStore) {
-      const trEl = this.shadowRoot.getElementById(`security-scheme-${name}`);
-      console.log(type, name, secureStore, trEl); // eslint-disable-line
-      if (trEl) {
-        return trEl.value;
-      }
-    }
+
     const store = JSON.parse(localStorage.getItem(localStorageKey)) || {};
     if (store[name]) {
       return store[name];
@@ -338,29 +333,46 @@ export default class CodeSimples extends LitElement {
   }
 
   genCode() {
+    console.log(this.resolved_spec.securitySchemes); // eslint-disable-line no-console
     const headers = [];
     const queryString = [];
     const postData = [];
     const cookies = [];
     const method = this.method.toUpperCase();
     let url = this.serverUrl + this.path;
+    for (const i in this.resolved_spec.securitySchemes) {
+      const { name, value } = this.resolved_spec.securitySchemes[i];
+      if (this.resolved_spec.securitySchemes[i].in === 'header' && value !== '') {
+        headers.push({ name, value });
+      }
+      if (this.resolved_spec.securitySchemes[i].in === 'query' && value !== '') {
+        queryString.push({ name, value });
+      }
+      if (this.resolved_spec.securitySchemes[i].in === 'body' && value !== '') {
+        postData.push({ name, value: value || '' });
+      }
+    }
     for (const i in this.parameters) {
       const { name } = this.parameters[i];
       const { type } = this.parameters[i].schema;
+      const value = this.randomParam(type, name);
+      if (!value) {
+        continue;
+      }
       if (this.parameters[i].in === 'cookie') {
-        cookies.push({ name, value: this.randomParam(type, name) });
+        cookies.push({ name, value });
       }
       if (this.parameters[i].in === 'header') {
-        headers.push({ name, value: this.randomParam(type, name, true) });
+        headers.push({ name, value });
       }
       if (this.parameters[i].in === 'query' && this.parameters[i].required) {
-        queryString.push({ name, value: this.randomParam(type, name) });
+        queryString.push({ name, value });
       }
       if (this.parameters[i].in === 'path' && this.parameters[i].required) {
-        url = url.replaceAll(`{${name}}`, this.randomParam(type, name));
+        url = url.replaceAll(`{${name}}`, value);
       }
       if (this.parameters[i].in === 'body' && this.parameters[i].required) {
-        postData.push({ name, value: this.randomParam(type, name) });
+        postData.push({ name, value });
       }
     }
 
@@ -406,7 +418,7 @@ export default class CodeSimples extends LitElement {
 
   renderSelectLang() {
     return html` <div @click="${this.onOpenPopupClick}" class="selector">
-      Request Sample Language: <span>${this.lang}</span>
+      ${locale.i18n('request_simple_lang', 'Request Sample Language')}: <span>${this.lang}</span>
       ${this.client ? html`<span>/</span>` : ''}
       ${this.client ? html`<span>${this.client}</span> ` : ''}
       <span>&#709;</span>

@@ -11,6 +11,7 @@ import BorderStyles from '~/styles/border-styles';
 import CustomStyles from '~/styles/custom-styles';
 import '~/components/schema-tree';
 import '~/components/schema-table';
+import { locale } from '~/locale';
 
 export default class ApiResponse extends LitElement {
   constructor() {
@@ -85,7 +86,7 @@ export default class ApiResponse extends LitElement {
     return html`
     <div class="col regular-font response-panel ${this.renderStyle}-mode">
       <div class=" ${this.callback === 'true' ? 'tiny-title' : 'req-res-title'} "> 
-        ${this.callback === 'true' ? 'CALLBACK RESPONSE' : 'RESPONSE'}
+        ${this.callback === 'true' ? locale.i18n('response', 'CALLBACK RESPONSE') : locale.i18n('response', 'RESPONSE')}
       </div>
       <div>
         ${this.responseTemplate()}
@@ -181,8 +182,8 @@ export default class ApiResponse extends LitElement {
             : html`  
               <div class="tab-panel col">
                 <div class="tab-buttons row" @click="${(e) => { if (e.target.tagName.toLowerCase() === 'button') { this.activeSchemaTab = e.target.dataset.tab; } }}" >
-                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>EXAMPLE </button>
-                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >SCHEMA</button>
+                  <button class="tab-btn ${this.activeSchemaTab === 'example' ? 'active' : ''}" data-tab = 'example'>${locale.i18n('example', 'EXAMPLE')} </button>
+                  <button class="tab-btn ${this.activeSchemaTab !== 'example' ? 'active' : ''}" data-tab = 'schema' >${locale.i18n('schema', 'SCHEMA')}</button>
                   <div style="flex:1"></div>
                   ${Object.keys(this.mimeResponsesForEachStatus[status]).length === 1
                     ? html`<span class='small-font-size gray-text' style='align-self:center; margin-top:8px;'> ${Object.keys(this.mimeResponsesForEachStatus[status])[0]} </span>`
@@ -206,7 +207,7 @@ export default class ApiResponse extends LitElement {
 
   responseHeaderListTemplate(respHeaders) {
     return html`
-      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">RESPONSE HEADERS</div> 
+      <div style="padding:16px 0 8px 0" class="resp-headers small-font-size bold-text">${locale.i18n('response_head', 'RESPONSE HEADERS')}</div> 
       <table role="presentation" style="border-collapse: collapse; margin-bottom:16px; border:1px solid var(--border-color); border-radius: var(--border-radius)" class="small-font-size mono-font">
         ${respHeaders.map((v) => html`
           <tr>

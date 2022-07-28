@@ -1,6 +1,7 @@
 import { html } from 'lit';
 import { marked } from 'marked';
 import { pathIsInSearch } from '~/utils/common-utils';
+import { locale } from '~/locale';
 
 export function expandCollapseNavBarTag(navLinkEl, action = 'toggle') {
   const tagAndPathEl = navLinkEl?.closest('.nav-bar-tag-and-paths');
@@ -44,6 +45,7 @@ export default function navbarTemplate() {
       </nav>
     `;
   }
+  const lang = locale.getLocale();
 
   return html`
   <nav id="nav" class='nav-bar ${this.renderStyle}' part="section-navbar">
@@ -59,7 +61,7 @@ export default function navbarTemplate() {
             ? html`
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0
                 ? html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> 
-                    ${this.resolvedSpec.info?.title?.trim() || 'Overview'}
+                    ${this.resolvedSpec.info[`x-title-${lang}`] || this.resolvedSpec.info?.title?.trim() || 'Overview'}
                   </div>`
                 : ''
               }
@@ -78,7 +80,7 @@ export default function navbarTemplate() {
               ${this.resolvedSpec.infoDescriptionHeaders.length > 0 ? html`<hr style='border-top: 1px solid var(--nav-hover-bg-color); border-width:1px 0 0 0; margin: 15px 0 0 0'/>` : ''}
             `
             : html`<div class='nav-bar-info' id='link-overview' data-content-id='overview' @click = '${(e) => this.scrollToEventTarget(e, false)}'> 
-            ${this.resolvedSpec.info?.title?.trim() || 'Overview'} 
+            ${this.resolvedSpec.info[`x-title-${lang}`] || this.resolvedSpec.info?.title?.trim() || 'Overview'} 
               </div>`
           }
         `
@@ -86,11 +88,11 @@ export default function navbarTemplate() {
     
       ${this.allowServerSelection === 'false'
         ? ''
-        : html`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${(e) => this.scrollToEventTarget(e, false)}'> API Servers </div>`
+        : html`<div class='nav-bar-info' id='link-servers' data-content-id='servers' @click = '${(e) => this.scrollToEventTarget(e, false)}'> ${locale.i18n('api_servers', 'API Servers')} </div>`
       }
       ${(this.allowAuthentication === 'false' || !this.resolvedSpec.securitySchemes)
         ? ''
-        : html`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${(e) => this.scrollToEventTarget(e, false)}'> Authentication </div>`
+        : html`<div class='nav-bar-info' id='link-auth' data-content-id='auth' @click = '${(e) => this.scrollToEventTarget(e, false)}'> ${locale.i18n('authentication', 'Authentication')} </div>`
       }
 
       <div id='link-operations-top' class='nav-bar-section operations' data-content-id='operations-top' @click = '${(e) => this.scrollToEventTarget(e, false)}'>
@@ -177,7 +179,7 @@ export default function navbarTemplate() {
                       ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`
                   }
-                  ${p.isWebhook ? html`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)">WEBHOOK</span>` : ''}
+                  ${p.isWebhook ? html`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)"> ${locale.i18n('webhook', 'WEBHOOK')} </span>` : ''}
                   ${this.usePathInNavBar === 'true'
                     ? html`<span class='mono-font'>${p.path}</span>`
                     : p.summary || p.shortSummary

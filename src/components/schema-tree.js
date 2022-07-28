@@ -5,6 +5,7 @@ import FontStyles from '~/styles/font-styles';
 import SchemaStyles from '~/styles/schema-styles';
 import BorderStyles from '~/styles/border-styles';
 import CustomStyles from '~/styles/custom-styles';
+import { locale } from '~/locale';
 
 export default class SchemaTree extends LitElement {
   static get properties() {
@@ -108,7 +109,7 @@ export default class SchemaTree extends LitElement {
             ? html`
               <div style="flex:1"></div>
               <div part="schema-toolbar-item schema-multiline-toggle" class='toolbar-item' @click='${() => { this.schemaDescriptionExpanded = (this.schemaDescriptionExpanded === 'true' ? 'false' : 'true'); }}'> 
-                ${this.schemaDescriptionExpanded === 'true' ? 'Single line description' : 'Multiline description'}
+                ${this.schemaDescriptionExpanded === 'true' ? locale.i18n('singleline_description', 'Single line description') : locale.i18n('multiline_description', 'Multiline description')}
               </div>
             `
             : ''
@@ -336,10 +337,10 @@ export default class SchemaTree extends LitElement {
                 : ''}`
               : ''
           }
-          ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Constraints: </span>${constraint}</div>` : ''}
-          ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Default: </span>${defaultValue}</div>` : ''}
-          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>Allowed: </span>${allowedValues}</div>` : ''}
-          ${pattern ? html`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>Pattern: </span>${pattern}</div>` : ''}
+          ${constraint ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('constraints', 'Constraints')}: </span>${constraint}</div>` : ''}
+          ${defaultValue ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('default', 'Default')}: </span>${defaultValue}</div>` : ''}
+          ${allowedValues ? html`<div style='display:inline-block; line-break:anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('allowed', 'Allowed')}: </span>${allowedValues}</div>` : ''}
+          ${pattern ? html`<div style='display:inline-block; line-break: anywhere; margin-right:8px'><span class='bold-text'>${locale.i18n('pattern', 'Pattern')}: </span>${pattern}</div>` : ''}
         </div>
       </div>
     `;
