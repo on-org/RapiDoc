@@ -9984,7 +9984,7 @@ class Locale {
   }
 
   i18n(key, def = '') {
-    return i18n[this.locale][key] || i18n.en[key] || def;
+    return (i18n[this.locale] ? i18n[this.locale][key] : null) || i18n.en[key] || def || '';
   }
 
 }
@@ -39972,24 +39972,34 @@ function navbarTemplate() {
     }
 
     return true;
-  }).map(p => $`
+  }).map(p => {
+    var _p$path;
+
+    return $`
               <div 
                 class='nav-bar-path
                 ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                style="cursor: pointer;border-left: 4px solid transparent;display: block"
                 data-content-id='${p.elementId}'
                 id='link-${p.elementId}'
                 @click = '${e => {
-    this.scrollToEventTarget(e, false);
-  }}'
+      this.scrollToEventTarget(e, false);
+    }}'
               >
-                <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                <span style = "display:block; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
                   ${$`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
                       ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`}
                   ${p.isWebhook ? $`<span style="font-weight:bold; margin-right:8px; font-size: calc(var(--font-size-small) - 2px)"> ${locale.i18n('webhook', 'WEBHOOK')} </span>` : ''}
                   ${this.usePathInNavBar === 'true' ? $`<span class='mono-font'>${p.path}</span>` : p.summary || p.shortSummary}
+                  ${this.usePathInNavBar === 'false' && p.path ? $`<span style="display: block;font-size: 12px;padding-left: 10px;opacity: 0.7;">${(_p$path = p.path) !== null && _p$path !== void 0 ? _p$path : ''}</span>` : ''}
                 </span>
-              </div>`)}
+
+                
+              </div>
+
+            `;
+  })}
             </div>
           </div>
         `)}
@@ -41941,7 +41951,7 @@ class RapiDoc extends lit_element_s {
       .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--nav-head-color); }
       
       .nav-method.as-colored-block {
-        padding: 1px 4px;
+        padding: 1px 1px 1px 4px;
         min-width: 30px;
         border-radius: 4px 0 0 4px;
         color: #000;
@@ -67869,7 +67879,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("ec2868713c79eac34f11")
+/******/ 		__webpack_require__.h = () => ("4e3540e6ee5354423017")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

@@ -87,7 +87,7 @@ class Locale {
   }
 
   i18n(key, def = '') {
-    return i18n[this.locale][key] || i18n.en[key] || def;
+    return (i18n[this.locale] ? i18n[this.locale][key] : null) || i18n.en[key] || def || '';
   }
 }
 

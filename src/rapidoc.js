@@ -463,7 +463,7 @@ export default class RapiDoc extends LitElement {
       .nav-method.as-colored-text.head, .nav-method.as-colored-text.patch, .nav-method.as-colored-text.options { color:var(--nav-head-color); }
       
       .nav-method.as-colored-block {
-        padding: 1px 4px;
+        padding: 1px 1px 1px 4px;
         min-width: 30px;
         border-radius: 4px 0 0 4px;
         color: #000;

@@ -59,9 +59,8 @@
     </script>
   </head>
   <body>
-    <rapi-doc id='thedoc' 
+    <rapi-doc id='thedoc'
       spec-url='../specs/api-key.yaml'
-      allow-authentication = "false"
       regular-font = "Open Sans"
       mono-font = "Roboto Mono"
       allow-spec-file-load = "false"
@@ -69,8 +68,11 @@
       api-key-location = "header"
       api-key-value = "-"
       render-style="read"
-    > 
-      <div slot='header' > 
+      show-method-in-nav-bar = "as-colored-block"
+      nav-item-spacing = "compact"
+      show-info = "true"
+    >
+      <div slot='header' >
         <input class='txt' id='key-val-input' type='text' placeholder='API Key' value='special-key' spellcheck='false' >
         <button class='btn' onclick='setApiKey()'>SET KEY</button>
         <span id="header-msg"></span>

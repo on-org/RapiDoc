@@ -168,13 +168,14 @@ export default function navbarTemplate() {
               <div 
                 class='nav-bar-path
                 ${this.usePathInNavBar === 'true' ? 'small-font' : ''}'
+                style="cursor: pointer;border-left: 4px solid transparent;display: block"
                 data-content-id='${p.elementId}'
                 id='link-${p.elementId}'
                 @click = '${(e) => {
                   this.scrollToEventTarget(e, false);
                 }}'
               >
-                <span style = "display:flex; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
+                <span style = "display:block; align-items:start; ${p.deprecated ? 'filter:opacity(0.5)' : ''}">
                   ${html`<span class="nav-method ${this.showMethodInNavBar} ${p.method}">
                       ${this.showMethodInNavBar === 'as-colored-block' ? p.method.substring(0, 3).toUpperCase() : p.method.toUpperCase()}
                     </span>`
@@ -184,8 +185,13 @@ export default function navbarTemplate() {
                     ? html`<span class='mono-font'>${p.path}</span>`
                     : p.summary || p.shortSummary
                   }
+                  ${this.usePathInNavBar === 'false' && p.path ? html`<span style="display: block;font-size: 12px;padding-left: 10px;opacity: 0.7;">${p.path ?? ''}</span>` : ''}
                 </span>
-              </div>`)}
+
+                
+              </div>
+
+            `)}
             </div>
           </div>
         `)
