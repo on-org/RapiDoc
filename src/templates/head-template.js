@@ -15,14 +15,21 @@ export default function headTemplate() {
 
   return html`
     <header class="row regular-font head-title" part="section-header" style="">
-      <button class="toggle-menu" @click="${() => {
+      <button class="toggle-menu" @click="${(e) => {
         this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
-      }}">Show Menu</button>
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('clicked1'); // eslint-disable-line no-console
+      }}">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </button>
       <slot name="nav-logo" class="logo"></slot>
       ${(this.allowSearch === 'false' && this.allowAdvancedSearch === 'false')
         ? ''
         : html`
-          <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; flex-grow: 5; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+          <div class="section-navbar-search" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; flex-grow: 5; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
             ${this.allowSearch === 'false'
           ? ''
           : html`
@@ -58,8 +65,7 @@ export default function headTemplate() {
         `
       }
       
-      ${html`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; flex-grow: 1;"></div>`}
-      ${html`<div style="display:flex; flex-direction:row; justify-content: end; align-items:stretch; padding:8px 0 12px 0; flex-grow: 3; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+      ${html`<div class="section-navbar-search" style="display:flex; flex-direction:row; justify-content: end; align-items:stretch; flex-grow: 3; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
         <nav class='nav-lang' part="section-lang-scroll" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch;">
         ${(!langs || !names)
         ? ''
@@ -91,10 +97,11 @@ export default function headTemplate() {
             button-bg = "#00A2FB"
             button-label = "PDF"
             hide-input = "true"
+            class = "navbar-btn"
           > </rapi-pdf>`}
 
          ${!this.openapiBtn ? '' : html`
-        <button class="m-btn primary" href="" style='font-family: "";font-size: 17px;' @click="${() => {
+        <button class="m-btn primary navbar-btn" href="" style='font-family: "";font-size: 17px;' @click="${() => {
           const a = document.createElement('a');
           a.href = this.specUrl;
           a.download = this.specUrl.split('/').pop();
@@ -104,7 +111,7 @@ export default function headTemplate() {
         }}">YAML</button>
         `}
       </div>`}
-      <slot name="head"></slot>
+      <slot class="head" name="head"></slot>
     </header>`;
   }
 /* eslint-enable indent */

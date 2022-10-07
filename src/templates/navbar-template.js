@@ -50,9 +50,15 @@ export default function navbarTemplate() {
   return html`
   <nav id="nav" class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
-    <button class="toggle-menu toggle-menu-mm" @click="${() => {
+    <button class="toggle-menu toggle-menu-mm" @click="${(e) => {
       this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
-    }}">Show Menu</button>
+      e.preventDefault();
+      e.stopPropagation();
+    }}">
+      <div class="bar1"></div>
+      <div class="bar2"></div>
+      <div class="bar3"></div>
+    </button>
     ${html`<nav class='nav-scroll' part="section-navbar-scroll">
       ${(this.showInfo === 'false' || !this.resolvedSpec.info)
         ? ''

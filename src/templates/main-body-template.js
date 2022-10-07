@@ -87,7 +87,10 @@ export default function mainBodyTemplate(isMini = false, showExpandCollapse = tr
         
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode" @click="${() => {
-          this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
+          if (this.shadowRoot.querySelector('.nav-bar').classList.contains('mobile-show')) {
+            this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
+          }
+          console.log('clicked'); // eslint-disable-line no-console
         }}">
           
           ${this.loading === true

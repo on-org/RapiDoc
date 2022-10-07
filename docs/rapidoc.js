@@ -33766,7 +33766,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
           } // Generate a short summary which is broken
 
 
-          let shortSummary = (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
+          let shortSummary = (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj.summary || pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
 
           if (shortSummary.length > 100) {
             [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
@@ -39464,7 +39464,7 @@ function expandedEndpointBodyTemplate(path, tagName = '') {
                     ${path.xBadges.map(v => $`<span style="margin:1px; margin-right:5px; padding:1px 8px; font-weight:bold; border-radius:12px;  background-color: var(--light-${v.color}, var(--input-bg)); color:var(--${v.color}); border:1px solid var(--${v.color})">${v.label}</span>`)}
                   </div>
                 ` : ''}
-              <h2 part="section-operation-summary"> ${path.shortSummary || `${path.method.toUpperCase()} ${path.path}`}</h2>
+              <h2 part="section-operation-summary"> ${unsafe_html_o(marked(path.shortSummary || `${path.method.toUpperCase()} ${path.path}`))}</h2>
               ${path.isWebhook ? $`<span part="section-operation-webhook style=" color:var(--primary-color); font-weight:bold; font-size: var(--font-size-regular);"> WEBHOOK </span>` : $`
                   <div class='mono-font regular-font-size' part="section-operation-webhook-method" style='text-align:left; direction:ltr; padding: 8px 0; color:var(--fg3)'>
                     <span part="label-operation-method" class='regular-font upper method-fg bold-text ${path.method}'>${path.method}</span>
@@ -39883,9 +39883,15 @@ function navbarTemplate() {
   return $`
   <nav id="nav" class='nav-bar ${this.renderStyle}' part="section-navbar">
     <slot name="nav-logo" class="logo"></slot>
-    <button class="toggle-menu toggle-menu-mm" @click="${() => {
+    <button class="toggle-menu toggle-menu-mm" @click="${e => {
     this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
-  }}">Show Menu</button>
+    e.preventDefault();
+    e.stopPropagation();
+  }}">
+      <div class="bar1"></div>
+      <div class="bar2"></div>
+      <div class="bar3"></div>
+    </button>
     ${$`<nav class='nav-scroll' part="section-navbar-scroll">
       ${this.showInfo === 'false' || !this.resolvedSpec.info ? '' : $`
           ${this.infoDescriptionHeadingsInNavBar === 'true' ? $`
@@ -40444,12 +40450,19 @@ function headTemplate() {
 
   return $`
     <header class="row regular-font head-title" part="section-header" style="">
-      <button class="toggle-menu" @click="${() => {
+      <button class="toggle-menu" @click="${e => {
     this.shadowRoot.querySelector('.nav-bar').classList.toggle('mobile-show');
-  }}">Show Menu</button>
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('clicked1'); // eslint-disable-line no-console
+  }}">
+        <div class="bar1"></div>
+        <div class="bar2"></div>
+        <div class="bar3"></div>
+      </button>
       <slot name="nav-logo" class="logo"></slot>
       ${this.allowSearch === 'false' && this.allowAdvancedSearch === 'false' ? '' : $`
-          <div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 24px 12px 24px; flex-grow: 5; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+          <div class="section-navbar-search" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; flex-grow: 5; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
             ${this.allowSearch === 'false' ? '' : $`
                 <div style="display:flex; flex:1; line-height:22px;">
                   <input id="nav-bar-search" 
@@ -40475,8 +40488,7 @@ function headTemplate() {
           </div>
         `}
       
-      ${$`<div style="display:flex; flex-direction:row; justify-content:center; align-items:stretch; padding:8px 0 12px 0; flex-grow: 1;"></div>`}
-      ${$`<div style="display:flex; flex-direction:row; justify-content: end; align-items:stretch; padding:8px 0 12px 0; flex-grow: 3; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
+      ${$`<div class="section-navbar-search" style="display:flex; flex-direction:row; justify-content: end; align-items:stretch; flex-grow: 3; ${this.allowAdvancedSearch === 'false' ? 'border-bottom: 1px solid var(--nav-hover-bg-color)' : ''}" part="section-navbar-search">
         <nav class='nav-lang' part="section-lang-scroll" style="display:flex; flex-direction:row; justify-content:center; align-items:stretch;">
         ${!langs || !names ? '' : $`
           <select class="textbox" @change="${e => {
@@ -40504,10 +40516,11 @@ function headTemplate() {
             button-bg = "#00A2FB"
             button-label = "PDF"
             hide-input = "true"
+            class = "navbar-btn"
           > </rapi-pdf>`}
 
          ${!this.openapiBtn ? '' : $`
-        <button class="m-btn primary" href="" style='font-family: "";font-size: 17px;' @click="${() => {
+        <button class="m-btn primary navbar-btn" href="" style='font-family: "";font-size: 17px;' @click="${() => {
     const a = document.createElement('a');
     a.href = this.specUrl;
     a.download = this.specUrl.split('/').pop();
@@ -40517,7 +40530,7 @@ function headTemplate() {
   }}">YAML</button>
         `}
       </div>`}
-      <slot name="head"></slot>
+      <slot class="head" name="head"></slot>
     </header>`;
 }
 /* eslint-enable indent */
@@ -41252,7 +41265,11 @@ function mainBodyTemplate(isMini = false, showExpandCollapse = true, showTags = 
         
         <slot></slot>
         <div class="main-content-inner--${this.renderStyle}-mode" @click="${() => {
-    this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
+    if (this.shadowRoot.querySelector('.nav-bar').classList.contains('mobile-show')) {
+      this.shadowRoot.querySelector('.nav-bar').classList.remove('mobile-show');
+    }
+
+    console.log('clicked'); // eslint-disable-line no-console
   }}">
           
           ${this.loading === true ? $`<div class="loader"></div>` : $`
@@ -41674,6 +41691,17 @@ class RapiDoc extends lit_element_s {
         width:100%;
         overflow:hidden;
       }
+      
+      .bar1, .bar2, .bar3 {
+        width: 35px;
+        height: 5px;
+        background-color: var(--primary-color);
+        margin: 6px 0;
+        transition: 0.4s;
+      }
+      .bar1 {
+        margin-top: 3px;
+      }
 
       .main-content { 
         margin:0;
@@ -41746,43 +41774,36 @@ class RapiDoc extends lit_element_s {
       .toggle-menu, .toggle-menu-mm {
         display: none;
       }
+      .section-navbar-search {
+        padding:8px 24px 12px 24px;
+      }
+      @media (max-width: 990px) {
+        .nav-lang select {
+          margin: 0 !important;
+        }
+        .section-navbar-search {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+      }
       @media (max-width: 767px) {
+        .navbar-btn {
+          display: none;
+        }
+        .head {
+          display: none;
+        }
+        
         .toggle-menu {
             background: 0;
             border: 0;
             display: block;
             width: 30px;
-            height: 25px;
             position: relative;
             padding-right: 10px;
             text-indent: -10000px;
             color: #989898;
           }
-          
-          .toggle-menu::before, .toggle-menu::after {
-            content: "";
-            display: block;
-            border-top: 2px solid;
-            border-radius: 2px;
-            width: 100%;
-            height: 2px;
-            position: absolute;
-            transition: .25s ease-out transform;
-            top: 2px;
-          }
-          
-          .toggle-menu::after {
-              top: auto;
-              top: initial;
-              bottom: 2px;
-          }
-          
-          .toggle-menu-mm {
-            display: block;
-            position: absolute;
-            right: 20px;
-            top: 10px;
-        }
       }
     
       // .main-content-inner--focused-mode {
@@ -67879,7 +67900,7 @@ module.exports = JSON.parse('{"$id":"timings.json#","$schema":"http://json-schem
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("4e3540e6ee5354423017")
+/******/ 		__webpack_require__.h = () => ("f28b57573bdf9cf8a8bc")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/global */

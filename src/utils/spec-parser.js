@@ -313,7 +313,7 @@ function groupByTags(openApiSpec, sortEndpointsBy, generateMissingTags = false, 
           }
 
           // Generate a short summary which is broken
-          let shortSummary = (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.summary || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
+          let shortSummary = (pathOrHookObj[`x-summary-${lang}`] || pathOrHookObj.summary || pathOrHookObj[`x-description-${lang}`] || pathOrHookObj.description || `${methodName.toUpperCase()} ${pathOrHookName}`).trim();
           if (shortSummary.length > 100) {
             [shortSummary] = shortSummary.split(/[.|!|?]\s|[\r?\n]/); // take the first line (period or carriage return)
           }

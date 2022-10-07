@@ -186,6 +186,17 @@ export default class RapiDoc extends LitElement {
         width:100%;
         overflow:hidden;
       }
+      
+      .bar1, .bar2, .bar3 {
+        width: 35px;
+        height: 5px;
+        background-color: var(--primary-color);
+        margin: 6px 0;
+        transition: 0.4s;
+      }
+      .bar1 {
+        margin-top: 3px;
+      }
 
       .main-content { 
         margin:0;
@@ -258,43 +269,36 @@ export default class RapiDoc extends LitElement {
       .toggle-menu, .toggle-menu-mm {
         display: none;
       }
+      .section-navbar-search {
+        padding:8px 24px 12px 24px;
+      }
+      @media (max-width: 990px) {
+        .nav-lang select {
+          margin: 0 !important;
+        }
+        .section-navbar-search {
+          padding-left: 0 !important;
+          padding-right: 0 !important;
+        }
+      }
       @media (max-width: 767px) {
+        .navbar-btn {
+          display: none;
+        }
+        .head {
+          display: none;
+        }
+        
         .toggle-menu {
             background: 0;
             border: 0;
             display: block;
             width: 30px;
-            height: 25px;
             position: relative;
             padding-right: 10px;
             text-indent: -10000px;
             color: #989898;
           }
-          
-          .toggle-menu::before, .toggle-menu::after {
-            content: "";
-            display: block;
-            border-top: 2px solid;
-            border-radius: 2px;
-            width: 100%;
-            height: 2px;
-            position: absolute;
-            transition: .25s ease-out transform;
-            top: 2px;
-          }
-          
-          .toggle-menu::after {
-              top: auto;
-              top: initial;
-              bottom: 2px;
-          }
-          
-          .toggle-menu-mm {
-            display: block;
-            position: absolute;
-            right: 20px;
-            top: 10px;
-        }
       }
     
       // .main-content-inner--focused-mode {
