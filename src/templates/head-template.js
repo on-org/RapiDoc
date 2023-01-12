@@ -73,7 +73,7 @@ export default function headTemplate() {
           <select class="textbox" @change="${(e) => {
             selectedLang = e.target.value;
             window.selectedLang(selectedLang, selectedName);
-          }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+          }}" style='z-index:1;width: 92%;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
             ${Object.keys(langs).map((lang) => html`<option value='${lang}' ?selected = '${lang === selectedLang}'> ${langs[lang]} </option>`)}
           </select>
           </div>`}
@@ -85,21 +85,11 @@ export default function headTemplate() {
           <select @change="${(e) => {
             selectedName = e.target.value;
             window.selectedLang(selectedLang, selectedName);
-          }}" style='z-index:1;width: 92%;margin: 2px 10px;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
+          }}" style='z-index:1;width: 92%;color: var(--nav-hover-text-color);border-color: var(--nav-accent-color);background-color: var(--nav-hover-bg-color);'>
             ${Object.keys(names).map((name) => html`<option value='${name}' ?selected = '${name === selectedName}'> ${names[name]} </option>`)}
           </select>`}
         </nav>
-
-        ${!this.pdfBtn ? '' : html`
-          <rapi-pdf
-            style = "width: 67px; height:40px; font-size:18px;"
-            spec-url = "${this.specUrl}"
-            button-bg = "#00A2FB"
-            button-label = "PDF"
-            hide-input = "true"
-            class = "navbar-btn"
-          > </rapi-pdf>`}
-
+        
          ${!this.openapiBtn ? '' : html`
         <button class="m-btn primary navbar-btn" href="" style='font-family: "";font-size: 17px;' @click="${() => {
           const a = document.createElement('a');

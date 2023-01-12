@@ -1113,7 +1113,7 @@ export default class ApiRequest extends LitElement {
                       : `${this.api_keys.length} API keys applied`
                     } 
                   </div>`
-                : html`<div class="gray-text">${locale.i18n('required', 'Required  <span style="color:var(--red)">(None Applied)')}</span>`
+                : html`<div class="gray-text">${locale.i18n('required', 'Required <span style="color:var(--red)">(None Applied)')}</span></div>`
               }`
             : html`<span class="gray-text"> ${locale.i18n('not_required', 'Not Required')} </span>`
           }
